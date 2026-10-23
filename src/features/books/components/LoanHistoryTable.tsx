@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 
-import type { Loan, LoanStatus } from '../types/book';
+import { LOAN_STATUS, type Loan, type LoanStatus } from '../types/book';
 
 interface LoanHistoryTableProps {
   loans: Loan[];
@@ -11,15 +11,15 @@ interface LoanHistoryTableProps {
 }
 
 const LOAN_STATUS_CONFIG: Record<LoanStatus, { label: string; className: string }> = {
-  ACTIVE: {
+  [LOAN_STATUS.ACTIVE]: {
     label: 'Active',
     className: 'bg-surface-tint text-brand-600',
   },
-  OVERDUE: {
+  [LOAN_STATUS.OVERDUE]: {
     label: 'Overdue',
     className: 'bg-warn-surface text-warn-ink',
   },
-  RETURNED: {
+  [LOAN_STATUS.RETURNED]: {
     label: 'Returned',
     className: 'bg-success-surface text-success-ink',
   },
@@ -111,7 +111,7 @@ export function LoanHistoryTable({
                 return (
                   <tr
                     key={loan.id}
-                    className="border-t border-border text-sm transition-colors hover:bg-[#faf7fd]"
+                    className="border-t border-border text-sm transition-colors hover:bg-surface-row-alt"
                   >
                     <td className="px-6 py-3.5 text-left align-middle font-semibold text-ink">
                       {loan.memberName}

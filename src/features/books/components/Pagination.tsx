@@ -47,7 +47,7 @@ export function Pagination({
           disabled={isFirstPage}
           onClick={() => onPageChange(currentPage - 1)}
           aria-label="Previous page"
-          className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:text-[#8A93A0] disabled:opacity-60 enabled:cursor-pointer enabled:text-ink enabled:hover:bg-surface-row-alt"
+          className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:text-ink-subtle disabled:opacity-60 enabled:cursor-pointer enabled:text-ink enabled:hover:bg-surface-row-alt"
         >
           ‹
         </button>
@@ -84,7 +84,7 @@ export function Pagination({
           disabled={isLastPage}
           onClick={() => onPageChange(currentPage + 1)}
           aria-label="Next page"
-          className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:text-[#8A93A0] disabled:opacity-60 enabled:cursor-pointer enabled:text-ink enabled:hover:bg-surface-row-alt"
+          className="inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:text-ink-subtle disabled:opacity-60 enabled:cursor-pointer enabled:text-ink enabled:hover:bg-surface-row-alt"
         >
           ›
         </button>

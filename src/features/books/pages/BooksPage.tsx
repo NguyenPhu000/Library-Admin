@@ -7,9 +7,11 @@ import { BookFilters } from '../components/BookFilters';
 import { BookTable } from '../components/BookTable';
 import { Pagination } from '../components/Pagination';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
-import type { BookStatus } from '../types/book';
-
-const PAGE_SIZE = 10;
+import {
+  DEFAULT_PAGE_SIZE,
+  SEARCH_DEBOUNCE_MS,
+  type BookStatus,
+} from '../types/book';
 
 export function BooksPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,14 +19,14 @@ export function BooksPage() {
   const [selectedStatus, setSelectedStatus] = useState<BookStatus | ''>('');
   const [page, setPage] = useState(1);
 
-  const debouncedQuery = useDebounce(searchQuery, 300);
+  const debouncedQuery = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
 
   const { data, isLoading, isError, error, refetch } = useBooks({
     q: debouncedQuery.trim() || undefined,
     tag: selectedTag || undefined,
     status: selectedStatus || undefined,
     page,
-    limit: PAGE_SIZE,
+    limit: DEFAULT_PAGE_SIZE,
   });
 
   const { data: apiTags = [] } = useTags();
@@ -121,7 +123,7 @@ export function BooksPage() {
           <BookTable books={data.data} />
           <Pagination
             page={page}
-            pageSize={PAGE_SIZE}
+            pageSize={DEFAULT_PAGE_SIZE}
             total={data.total}
             onPageChange={setPage}
           />

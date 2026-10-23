@@ -9,6 +9,7 @@ import { StockCard } from '../components/StockCard';
 import { TagBadge } from '../components/TagBadge';
 import { useBook } from '../hooks/useBook';
 import { useBookLoans } from '../hooks/useBookLoans';
+import { LOAN_STATUS, type BookDetail } from '../types/book';
 
 export function BookDetailPage() {
   const { bookId } = useParams<{ bookId: string }>();
@@ -27,9 +28,29 @@ export function BookDetailPage() {
   useSetBreadcrumbDetailLabel(book?.title);
 
   const overdueCount = useMemo(
-    () => loans.filter((loan) => loan.status === 'OVERDUE').length,
+    () => loans.filter((loan) => loan.status === LOAN_STATUS.OVERDUE).length,
     [loans],
   );
+
+  const resolvedBook = useMemo<BookDetail | undefined>(() => {
+    if (!book) {
+      return undefined;
+    }
+    const activeLoansCount = loans.filter(
+      (loan) => loan.status === LOAN_STATUS.ACTIVE || loan.status === LOAN_STATUS.OVERDUE,
+    ).length;
+    const onLoan = typeof book.onLoan === 'number' ? book.onLoan : activeLoansCount;
+    const available =
+      typeof book.available === 'number'
+        ? book.available
+        : Math.max(0, book.totalCopies - onLoan);
+
+    return {
+      ...book,
+      onLoan,
+      available,
+    };
+  }, [book, loans]);
 
   function handleRetryLoans() {
     void refetchLoans();
@@ -92,7 +113,7 @@ export function BookDetailPage() {
         </div>
       )}
 
-      {isValidId && !isLoading && !isError && book && (
+      {isValidId && !isLoading && !isError && resolvedBook && (
         <>
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex flex-col gap-2">
@@ -100,23 +121,23 @@ export function BookDetailPage() {
                 id="book-detail-heading"
                 className="m-0 font-display text-[32px] font-extrabold leading-[1.1] text-ink"
               >
-                {book.title}
+                {resolvedBook.title}
               </h1>
               <p className="m-0 text-sm text-ink-muted">
-                {book.author} · {book.publishedYear}
+                {resolvedBook.author} · {resolvedBook.publishedYear}
               </p>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                {book.tags.map((tag) => (
+                {resolvedBook.tags.map((tag) => (
                   <TagBadge key={tag} tag={tag} />
                 ))}
-                <StockBadge status={book.status} />
+                <StockBadge status={resolvedBook.status} />
               </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                to={`/books/${book.id}/edit`}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-control border border-surface-tint-border bg-surface-tint px-4 font-semibold text-brand-600 no-underline transition-colors hover:bg-[#e7d6f8]"
+                to={`/books/${resolvedBook.id}/edit`}
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-control border border-surface-tint-border bg-surface-tint px-4 font-semibold text-brand-600 no-underline transition-colors hover:bg-surface-row-alt hover:text-night-700"
               >
                 <svg
                   width="16"
@@ -132,7 +153,7 @@ export function BookDetailPage() {
               </Link>
               <button
                 type="button"
-                className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-control border border-warn-border bg-warn-surface px-4 font-semibold text-warn-ink transition-colors hover:bg-[#fce6d2]"
+                className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-control border border-warn-border bg-warn-surface px-4 font-semibold text-warn-ink transition-colors hover:opacity-90"
               >
                 <svg
                   width="16"
@@ -150,8 +171,8 @@ export function BookDetailPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr]">
-            <BookInformationCard book={book} />
-            <StockCard book={book} overdueCount={overdueCount} />
+            <BookInformationCard book={resolvedBook} />
+            <StockCard book={resolvedBook} overdueCount={overdueCount} />
           </div>
 
           <LoanHistoryTable

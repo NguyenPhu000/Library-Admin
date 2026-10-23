@@ -1,4 +1,27 @@
-export type BookStatus = 'AVAILABLE' | 'OUT_OF_STOCK' | 'ARCHIVED';
+export const BOOK_STATUS = {
+  AVAILABLE: 'AVAILABLE',
+  OUT_OF_STOCK: 'OUT_OF_STOCK',
+  ARCHIVED: 'ARCHIVED',
+} as const;
+
+export type BookStatus = (typeof BOOK_STATUS)[keyof typeof BOOK_STATUS];
+
+export const BOOK_STATUS_OPTIONS: ReadonlyArray<{ value: BookStatus; label: string }> = [
+  { value: BOOK_STATUS.AVAILABLE, label: 'Available' },
+  { value: BOOK_STATUS.OUT_OF_STOCK, label: 'Out of stock' },
+  { value: BOOK_STATUS.ARCHIVED, label: 'Archived' },
+];
+
+export const LOAN_STATUS = {
+  ACTIVE: 'ACTIVE',
+  OVERDUE: 'OVERDUE',
+  RETURNED: 'RETURNED',
+} as const;
+
+export type LoanStatus = (typeof LOAN_STATUS)[keyof typeof LOAN_STATUS];
+
+export const DEFAULT_PAGE_SIZE = 10;
+export const SEARCH_DEBOUNCE_MS = 300;
 
 export interface BookItem {
   id: number;
@@ -21,8 +44,6 @@ export interface BookDetail extends BookItem {
   onLoan: number;
   available: number;
 }
-
-export type LoanStatus = 'ACTIVE' | 'OVERDUE' | 'RETURNED';
 
 export interface Loan {
   id: number;

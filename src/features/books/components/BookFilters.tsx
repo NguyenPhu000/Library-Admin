@@ -1,4 +1,4 @@
-import type { BookStatus } from '../types/book';
+import { BOOK_STATUS_OPTIONS, type BookStatus } from '../types/book';
 
 interface BookFiltersProps {
   searchQuery: string;
@@ -27,7 +27,6 @@ export function BookFilters({
       onSubmit={(e) => e.preventDefault()}
       className="flex flex-wrap items-end gap-4 rounded-card border border-border bg-surface p-5 shadow-xs"
     >
-      {/* Search Input */}
       <label className="flex flex-1 min-w-[280px] flex-col gap-1.5 text-[13px] font-semibold text-ink">
         Search
         <div className="flex min-h-[44px] items-center gap-2 rounded-control border border-border bg-surface px-3 text-ink-muted transition-colors focus-within:border-brand-600 focus-within:ring-1 focus-within:ring-brand-600">
@@ -56,7 +55,6 @@ export function BookFilters({
         </div>
       </label>
 
-      {/* Tag Select */}
       <label className="flex w-full flex-col gap-1.5 text-[13px] font-semibold text-ink sm:w-[200px] sm:flex-initial">
         Tag
         <div className="relative">
@@ -90,7 +88,6 @@ export function BookFilters({
         </div>
       </label>
 
-      {/* Status Select */}
       <label className="flex w-full flex-col gap-1.5 text-[13px] font-semibold text-ink sm:w-[200px] sm:flex-initial">
         Status
         <div className="relative">
@@ -101,9 +98,11 @@ export function BookFilters({
             className="min-h-[44px] w-full appearance-none rounded-control border border-border bg-surface pl-3 pr-8 font-sans text-sm font-normal text-ink outline-none transition-colors focus:border-brand-600 focus:ring-1 focus:ring-brand-600 cursor-pointer"
           >
             <option value="">All</option>
-            <option value="AVAILABLE">Available</option>
-            <option value="OUT_OF_STOCK">Out of stock</option>
-            <option value="ARCHIVED">Archived</option>
+            {BOOK_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
           <svg
             width="16"
@@ -122,7 +121,6 @@ export function BookFilters({
         </div>
       </label>
 
-      {/* Clear Filters Button */}
       <button
         type="button"
         onClick={onClearFilters}
