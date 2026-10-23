@@ -1,2 +1,47 @@
+@import "tailwindcss";
 @import './app/theme/tokens.css';
 @import './app/theme/base.css';
+
+@theme {
+  --color-night-900: #150829;
+  --color-night-700: #3d1766;
+  --color-brand-600: #5a1e96;
+  --color-magenta-600: #9b3fc2;
+  --color-violet-500: #7a4fe8;
+  --color-orchid-400: #d17ff0;
+  --color-cyan-400: #4fd1e8;
+
+  --color-ink: #16121f;
+  --color-ink-muted: #5b5570;
+  --color-ink-subtle: #8a93a0;
+  --color-on-dark: #ffffff;
+  --color-on-dark-muted: #c9bfe0;
+  --color-on-dark-soft: #e3d9f5;
+  --color-on-dark-faint: #9884b8;
+  --color-arrow-on-dark: #7a5a9e;
+
+  --color-surface: #ffffff;
+  --color-surface-row-alt: #f5f0fa;
+  --color-surface-tint: #f1e8fb;
+  --color-surface-tint-border: #e3d2f5;
+  --color-border: #e3e6e4;
+  --color-border-dashed: #c7b8dc;
+
+  --color-success: #1f9254;
+  --color-success-surface: #e6f6ec;
+  --color-success-ink: #176b3e;
+  --color-warn-surface: #fff3e9;
+  --color-warn-border: #f2d3b0;
+  --color-warn-ink: #7a3a0f;
+  --color-warn-icon: #c4622a;
+
+  --font-display: 'Baloo 2', Arial, sans-serif;
+  --font-sans: Inter, Arial, sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, monospace;
+
+  --radius-control: 10px;
+  --radius-strip: 14px;
+  --radius-card: 16px;
+  --radius-panel: 20px;
+  --radius-pill: 999px;
+}
