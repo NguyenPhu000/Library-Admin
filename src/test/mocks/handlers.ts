@@ -1,10 +1,13 @@
 import { http, HttpResponse } from 'msw';
-
-import { SEED_BOOKS } from './data';
+import { SEED_BOOKS, SEED_TAGS } from './data';
 import type { PaginatedResponse } from '../../shared/types/api';
 import type { BookItem } from '../../features/books/types/book';
 
 export const handlers = [
+  http.get('*/api/v1/tags', () => {
+    return HttpResponse.json({ data: SEED_TAGS });
+  }),
+
   http.get('*/api/v1/books', ({ request }) => {
     const url = new URL(request.url);
     const q = url.searchParams.get('q')?.toLowerCase() ?? '';

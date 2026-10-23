@@ -130,3 +130,8 @@ export const SEED_BOOKS: BookItem[] = [
     updatedAt: '2026-05-14T08:00:00.000Z',
   },
 ];
+
+export const SEED_TAGS: string[] = Array.from(
+  new Set(SEED_BOOKS.flatMap((book) => book.tags)),
+);
+
