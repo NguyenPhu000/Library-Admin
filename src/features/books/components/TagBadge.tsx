@@ -3,5 +3,9 @@ interface TagBadgeProps {
 }
 
 export function TagBadge({ tag }: TagBadgeProps) {
-  return <span className="tag-badge">{tag}</span>;
+  return (
+    <span className="inline-flex items-center rounded-full bg-surface-tint px-2.5 py-0.5 text-xs font-semibold leading-normal text-brand-600">
+      {tag}
+    </span>
+  );
 }
