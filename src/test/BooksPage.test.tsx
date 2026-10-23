@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
@@ -10,9 +10,6 @@ function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        retry: false,
-      },
-      mutations: {
         retry: false,
       },
     },
@@ -36,10 +33,7 @@ describe('BooksPage', () => {
   it('fetches books through MSW mock and displays the books table', async () => {
     renderWithProviders(<BooksPage />);
 
-    // Shows loading first or resolves to table
     expect(await screen.findByRole('table')).toBeInTheDocument();
-
-    // Contains seed books mocked by MSW
     expect(await screen.findByRole('link', { name: 'Clean Code' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'The Pragmatic Programmer' })).toBeInTheDocument();
   });
@@ -55,7 +49,6 @@ describe('BooksPage', () => {
     const searchInput = screen.getByRole('searchbox', { name: /search/i });
     await user.type(searchInput, 'Martin Fowler');
 
-    // Wait for the query to resolve after debounce and update the table
     await waitFor(() => {
       expect(screen.queryByRole('link', { name: 'Clean Code' })).not.toBeInTheDocument();
     });
@@ -139,7 +132,6 @@ describe('BooksPage', () => {
 
     expect(await screen.findByRole('table')).toBeInTheDocument();
 
-    // Default 10 rows per page: 8 seed books are displayed
     expect(screen.getByText('Showing 1–8 of 8 books')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
@@ -154,46 +146,10 @@ describe('BooksPage', () => {
     expect(await screen.findByRole('table')).toBeInTheDocument();
     expect(screen.getByText('Showing 1–8 of 8 books')).toBeInTheDocument();
 
-    // Type in search query
     const searchInput = screen.getByRole('searchbox', { name: /search/i });
     await user.type(searchInput, 'Clean Code');
 
-    // It should filter and update the count
     expect(await screen.findByText('Showing 1–1 of 1 books')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Page 1' })).toBeInTheDocument();
-  });
-
-  it('opens confirmation dialog on Delete, cancels safely, and deletes with list refresh on confirm', async () => {
-    const user = userEvent.setup();
-    renderWithProviders(<BooksPage />);
-
-    expect(await screen.findByRole('table')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Node.js Design Patterns' })).toBeInTheDocument();
-
-    // Find the row for Node.js Design Patterns
-    const row = screen.getByRole('link', { name: 'Node.js Design Patterns' }).closest('tr')!;
-    const deleteBtn = within(row).getByRole('button', { name: 'Delete' });
-
-    // Click delete opens dialog
-    await user.click(deleteBtn);
-    const dialog = screen.getByRole('dialog', { name: 'Delete book' });
-    expect(dialog).toBeInTheDocument();
-    expect(within(dialog).getByText('Node.js Design Patterns')).toBeInTheDocument();
-
-    // Cancel closes dialog without deleting
-    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Node.js Design Patterns' })).toBeInTheDocument();
-
-    // Open again and confirm
-    await user.click(deleteBtn);
-    const confirmDialog = screen.getByRole('dialog', { name: 'Delete book' });
-    await user.click(within(confirmDialog).getByRole('button', { name: 'Delete book' }));
-
-    // Dialog closes and book is removed from list
-    await waitFor(() => {
-      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    });
-    expect(screen.queryByRole('link', { name: 'Node.js Design Patterns' })).not.toBeInTheDocument();
   });
 });

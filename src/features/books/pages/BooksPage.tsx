@@ -2,17 +2,14 @@ import { useState } from 'react';
 
 import { useBooks } from '../hooks/useBooks';
 import { useTags } from '../hooks/useTags';
-import { useDeleteBook } from '../hooks/useDeleteBook';
 import { PageHeader } from '../components/PageHeader';
 import { BookFilters } from '../components/BookFilters';
 import { BookTable } from '../components/BookTable';
 import { Pagination } from '../components/Pagination';
-import { DeleteBookDialog } from '../components/DeleteBookDialog';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
 import {
   DEFAULT_PAGE_SIZE,
   SEARCH_DEBOUNCE_MS,
-  type BookItem,
   type BookStatus,
 } from '../types/book';
 
@@ -21,7 +18,6 @@ export function BooksPage() {
   const [selectedTag, setSelectedTag] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<BookStatus | ''>('');
   const [page, setPage] = useState(1);
-  const [bookToDelete, setBookToDelete] = useState<BookItem | null>(null);
 
   const debouncedQuery = useDebounce(searchQuery, SEARCH_DEBOUNCE_MS);
 
@@ -32,8 +28,6 @@ export function BooksPage() {
     page,
     limit: DEFAULT_PAGE_SIZE,
   });
-
-  const deleteBookMutation = useDeleteBook();
 
   const { data: apiTags = [] } = useTags();
   const bookTags = Array.from(new Set(data?.data.flatMap((book) => book.tags) || []));
@@ -59,30 +53,6 @@ export function BooksPage() {
     setSelectedTag('');
     setSelectedStatus('');
     setPage(1);
-  }
-
-  function handleOpenDeleteDialog(book: BookItem) {
-    deleteBookMutation.reset();
-    setBookToDelete(book);
-  }
-
-  function handleCloseDeleteDialog() {
-    if (deleteBookMutation.isPending) {
-      return;
-    }
-    deleteBookMutation.reset();
-    setBookToDelete(null);
-  }
-
-  function handleConfirmDelete() {
-    if (!bookToDelete) {
-      return;
-    }
-    deleteBookMutation.mutate(bookToDelete.id, {
-      onSuccess: () => {
-        setBookToDelete(null);
-      },
-    });
   }
 
   const hasActiveFilters = Boolean(searchQuery || selectedTag || selectedStatus);
@@ -150,7 +120,7 @@ export function BooksPage() {
 
       {!isLoading && !isError && data && data.data.length > 0 && (
         <>
-          <BookTable books={data.data} onDelete={handleOpenDeleteDialog} />
+          <BookTable books={data.data} />
           <Pagination
             page={page}
             pageSize={DEFAULT_PAGE_SIZE}
@@ -159,15 +129,6 @@ export function BooksPage() {
           />
         </>
       )}
-
-      <DeleteBookDialog
-        isOpen={Boolean(bookToDelete)}
-        bookTitle={bookToDelete?.title ?? ''}
-        isDeleting={deleteBookMutation.isPending}
-        error={deleteBookMutation.error}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCloseDeleteDialog}
-      />
     </div>
   );
 }
