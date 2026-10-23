@@ -1,6 +1,6 @@
-import type { BookDetail, BookItem, Loan } from '../../features/books/types/book';
+import { BOOK_STATUS, LOAN_STATUS, type BookDetail, type BookItem, type Loan } from '../../features/books/types/book';
 
-export const SEED_BOOKS: BookItem[] = [
+const INITIAL_SEED_BOOKS: BookItem[] = [
   {
     id: 1,
     title: 'Clean Code',
@@ -12,7 +12,7 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'A handbook of agile software craftsmanship.',
     totalCopies: 4,
     tags: ['Programming'],
-    status: 'AVAILABLE',
+    status: BOOK_STATUS.AVAILABLE,
     addedOn: '2026-08-10',
     createdAt: '2026-08-10T08:00:00.000Z',
     updatedAt: '2026-08-10T08:00:00.000Z',
@@ -28,7 +28,7 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'Your journey to mastery in software development.',
     totalCopies: 5,
     tags: ['Programming', 'Career'],
-    status: 'AVAILABLE',
+    status: BOOK_STATUS.AVAILABLE,
     addedOn: '2026-09-12',
     createdAt: '2026-09-12T08:00:00.000Z',
     updatedAt: '2026-09-12T08:00:00.000Z',
@@ -44,7 +44,7 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'The big ideas behind reliable, scalable, and maintainable systems.',
     totalCopies: 0,
     tags: ['Database'],
-    status: 'OUT_OF_STOCK',
+    status: BOOK_STATUS.OUT_OF_STOCK,
     addedOn: '2026-07-20',
     createdAt: '2026-07-20T08:00:00.000Z',
     updatedAt: '2026-07-20T08:00:00.000Z',
@@ -60,7 +60,7 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'Improving the design of existing code.',
     totalCopies: 3,
     tags: ['Programming'],
-    status: 'AVAILABLE',
+    status: BOOK_STATUS.AVAILABLE,
     addedOn: '2026-08-15',
     createdAt: '2026-08-15T08:00:00.000Z',
     updatedAt: '2026-08-15T08:00:00.000Z',
@@ -76,7 +76,7 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'Get started with core JavaScript mechanisms.',
     totalCopies: 5,
     tags: ['JavaScript'],
-    status: 'AVAILABLE',
+    status: BOOK_STATUS.AVAILABLE,
     addedOn: '2026-09-01',
     createdAt: '2026-09-01T08:00:00.000Z',
     updatedAt: '2026-09-01T08:00:00.000Z',
@@ -92,7 +92,7 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'Master best practice architectures and design patterns in Node.js.',
     totalCopies: 1,
     tags: ['Node.js', 'JavaScript'],
-    status: 'AVAILABLE',
+    status: BOOK_STATUS.AVAILABLE,
     addedOn: '2026-09-18',
     createdAt: '2026-09-18T08:00:00.000Z',
     updatedAt: '2026-09-18T08:00:00.000Z',
@@ -108,7 +108,7 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'A modern introduction to programming with JavaScript.',
     totalCopies: 0,
     tags: ['JavaScript'],
-    status: 'OUT_OF_STOCK',
+    status: BOOK_STATUS.OUT_OF_STOCK,
     addedOn: '2026-06-25',
     createdAt: '2026-06-25T08:00:00.000Z',
     updatedAt: '2026-06-25T08:00:00.000Z',
@@ -124,14 +124,14 @@ export const SEED_BOOKS: BookItem[] = [
     description: 'Tackling complexity in the heart of software.',
     totalCopies: 2,
     tags: ['Architecture'],
-    status: 'AVAILABLE',
+    status: BOOK_STATUS.AVAILABLE,
     addedOn: '2026-05-14',
     createdAt: '2026-05-14T08:00:00.000Z',
     updatedAt: '2026-05-14T08:00:00.000Z',
   },
 ];
 
-export const SEED_LOANS: Loan[] = [
+const INITIAL_SEED_LOANS: Loan[] = [
   {
     id: 1,
     bookId: 2,
@@ -140,7 +140,7 @@ export const SEED_LOANS: Loan[] = [
     borrowedDate: '2026-10-15',
     dueDate: '2026-10-29',
     returnedDate: null,
-    status: 'ACTIVE',
+    status: LOAN_STATUS.ACTIVE,
   },
   {
     id: 2,
@@ -150,7 +150,7 @@ export const SEED_LOANS: Loan[] = [
     borrowedDate: '2026-10-02',
     dueDate: '2026-10-16',
     returnedDate: null,
-    status: 'OVERDUE',
+    status: LOAN_STATUS.OVERDUE,
   },
   {
     id: 3,
@@ -160,7 +160,7 @@ export const SEED_LOANS: Loan[] = [
     borrowedDate: '2026-10-10',
     dueDate: '2026-10-24',
     returnedDate: null,
-    status: 'ACTIVE',
+    status: LOAN_STATUS.ACTIVE,
   },
   {
     id: 4,
@@ -170,7 +170,7 @@ export const SEED_LOANS: Loan[] = [
     borrowedDate: '2026-09-20',
     dueDate: '2026-10-04',
     returnedDate: '2026-10-03',
-    status: 'RETURNED',
+    status: LOAN_STATUS.RETURNED,
   },
   {
     id: 5,
@@ -180,7 +180,7 @@ export const SEED_LOANS: Loan[] = [
     borrowedDate: '2026-09-01',
     dueDate: '2026-09-15',
     returnedDate: '2026-09-14',
-    status: 'RETURNED',
+    status: LOAN_STATUS.RETURNED,
   },
   {
     id: 6,
@@ -190,7 +190,7 @@ export const SEED_LOANS: Loan[] = [
     borrowedDate: '2026-10-12',
     dueDate: '2026-10-26',
     returnedDate: null,
-    status: 'ACTIVE',
+    status: LOAN_STATUS.ACTIVE,
   },
   {
     id: 7,
@@ -200,9 +200,17 @@ export const SEED_LOANS: Loan[] = [
     borrowedDate: '2026-10-11',
     dueDate: '2026-10-25',
     returnedDate: null,
-    status: 'ACTIVE',
+    status: LOAN_STATUS.ACTIVE,
   },
 ];
+
+export let SEED_BOOKS: BookItem[] = structuredClone(INITIAL_SEED_BOOKS);
+export let SEED_LOANS: Loan[] = structuredClone(INITIAL_SEED_LOANS);
+
+export function resetSeedData(): void {
+  SEED_BOOKS = structuredClone(INITIAL_SEED_BOOKS);
+  SEED_LOANS = structuredClone(INITIAL_SEED_LOANS);
+}
 
 export function getSeedBookLoans(bookId: number): Loan[] {
   return SEED_LOANS.filter((loan) => loan.bookId === bookId);
@@ -216,7 +224,7 @@ export function getSeedBookDetail(id: number): BookDetail | undefined {
 
   const bookLoans = getSeedBookLoans(book.id);
   const onLoan = bookLoans.filter(
-    (loan) => loan.status === 'ACTIVE' || loan.status === 'OVERDUE',
+    (loan) => loan.status === LOAN_STATUS.ACTIVE || loan.status === LOAN_STATUS.OVERDUE,
   ).length;
   const available = Math.max(0, book.totalCopies - onLoan);
 
@@ -227,6 +235,16 @@ export function getSeedBookDetail(id: number): BookDetail | undefined {
   };
 }
 
+export function removeSeedBook(id: number): boolean {
+  const index = SEED_BOOKS.findIndex((item) => item.id === id);
+  if (index === -1) {
+    return false;
+  }
+  SEED_BOOKS.splice(index, 1);
+  SEED_LOANS = SEED_LOANS.filter((loan) => loan.bookId !== id);
+  return true;
+}
+
 export const SEED_TAGS: string[] = Array.from(
-  new Set(SEED_BOOKS.flatMap((book) => book.tags)),
+  new Set(INITIAL_SEED_BOOKS.flatMap((book) => book.tags)),
 );

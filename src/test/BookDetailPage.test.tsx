@@ -15,6 +15,9 @@ function renderBookDetail(initialEntry = '/books/2') {
       queries: {
         retry: false,
       },
+      mutations: {
+        retry: false,
+      },
     },
   });
 
@@ -162,5 +165,48 @@ describe('BookDetailPage', () => {
     expect(within(alert).getByText('Book with ID 999 does not exist')).toBeInTheDocument();
     expect(within(alert).getByRole('button', { name: /retry/i })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /back to books/i })).toBeInTheDocument();
+  });
+
+  it('deletes a book with 0 active loans (204) and navigates back to /books', async () => {
+    const user = userEvent.setup();
+    renderBookDetail('/books/6');
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Node.js Design Patterns' }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Delete book' });
+    expect(within(dialog).getByText('Node.js Design Patterns')).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Delete book' }));
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Books list page' }),
+    ).toBeInTheDocument();
+  });
+
+  it('blocks deletion when book has active loans (409 BOOK_HAS_ACTIVE_LOANS) and shows conflict message', async () => {
+    const user = userEvent.setup();
+    renderBookDetail('/books/2');
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'The Pragmatic Programmer' }),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Delete book' });
+    await user.click(within(dialog).getByRole('button', { name: 'Delete book' }));
+
+    const alert = await within(dialog).findByRole('alert');
+    expect(alert).toHaveTextContent('Cannot delete book while 3 copies are currently on loan');
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'The Pragmatic Programmer' }),
+    ).toBeInTheDocument();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

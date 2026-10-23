@@ -1,5 +1,11 @@
 import { http, HttpResponse } from 'msw';
-import { getSeedBookDetail, getSeedBookLoans, SEED_BOOKS, SEED_TAGS } from './data';
+import {
+  getSeedBookDetail,
+  getSeedBookLoans,
+  removeSeedBook,
+  SEED_BOOKS,
+  SEED_TAGS,
+} from './data';
 import type { ApiErrorResponse, PaginatedResponse } from '../../shared/types/api';
 import type { BookItem } from '../../features/books/types/book';
 
@@ -84,5 +90,40 @@ export const handlers = [
     return HttpResponse.json({
       data: getSeedBookLoans(id),
     });
+  }),
+
+  http.delete('*/api/v1/books/:id', ({ params }) => {
+    const rawId = String(params.id ?? '');
+    const id = Number(rawId);
+    const detail = Number.isInteger(id) ? getSeedBookDetail(id) : undefined;
+
+    if (!detail) {
+      const errorResponse: ApiErrorResponse = {
+        error: {
+          code: 'BOOK_NOT_FOUND',
+          message: `Book with ID ${rawId} does not exist`,
+          requestId: 'req-125',
+        },
+      };
+      return HttpResponse.json(errorResponse, { status: 404 });
+    }
+
+    if (detail.onLoan > 0) {
+      const copyWord = detail.onLoan === 1 ? 'copy is' : 'copies are';
+      const errorResponse: ApiErrorResponse = {
+        error: {
+          code: 'BOOK_HAS_ACTIVE_LOANS',
+          message: `Cannot delete book while ${detail.onLoan} ${copyWord} currently on loan`,
+          details: {
+            activeLoansCount: detail.onLoan,
+          },
+          requestId: 'req-456',
+        },
+      };
+      return HttpResponse.json(errorResponse, { status: 409 });
+    }
+
+    removeSeedBook(id);
+    return new HttpResponse(null, { status: 204 });
   }),
 ];

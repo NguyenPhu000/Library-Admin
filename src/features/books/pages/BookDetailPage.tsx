@@ -1,20 +1,25 @@
-import { useMemo } from 'react';
-import { Link, useParams } from 'react-router';
+import { useMemo, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router';
 
 import { useSetBreadcrumbDetailLabel } from '../../../components/layout/BreadcrumbContext';
 import { BookInformationCard } from '../components/BookInformationCard';
+import { DeleteBookDialog } from '../components/DeleteBookDialog';
 import { LoanHistoryTable } from '../components/LoanHistoryTable';
 import { StockBadge } from '../components/StockBadge';
 import { StockCard } from '../components/StockCard';
 import { TagBadge } from '../components/TagBadge';
 import { useBook } from '../hooks/useBook';
 import { useBookLoans } from '../hooks/useBookLoans';
+import { useDeleteBook } from '../hooks/useDeleteBook';
 import { LOAN_STATUS, type BookDetail } from '../types/book';
 
 export function BookDetailPage() {
+  const navigate = useNavigate();
   const { bookId } = useParams<{ bookId: string }>();
   const parsedId = Number(bookId);
   const isValidId = Boolean(bookId) && Number.isInteger(parsedId) && parsedId > 0;
+
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { data: book, isLoading, isError, error, refetch } = useBook(parsedId);
   const {
@@ -24,6 +29,7 @@ export function BookDetailPage() {
     error: loansError,
     refetch: refetchLoans,
   } = useBookLoans(parsedId);
+  const deleteBookMutation = useDeleteBook();
 
   useSetBreadcrumbDetailLabel(book?.title);
 
@@ -54,6 +60,31 @@ export function BookDetailPage() {
 
   function handleRetryLoans() {
     void refetchLoans();
+  }
+
+  function handleOpenDeleteDialog() {
+    deleteBookMutation.reset();
+    setIsDeleteDialogOpen(true);
+  }
+
+  function handleCloseDeleteDialog() {
+    if (deleteBookMutation.isPending) {
+      return;
+    }
+    deleteBookMutation.reset();
+    setIsDeleteDialogOpen(false);
+  }
+
+  function handleConfirmDelete() {
+    if (!resolvedBook) {
+      return;
+    }
+    deleteBookMutation.mutate(resolvedBook.id, {
+      onSuccess: () => {
+        setIsDeleteDialogOpen(false);
+        void navigate('/books');
+      },
+    });
   }
 
   return (
@@ -153,6 +184,7 @@ export function BookDetailPage() {
               </Link>
               <button
                 type="button"
+                onClick={handleOpenDeleteDialog}
                 className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-control border border-warn-border bg-warn-surface px-4 font-semibold text-warn-ink transition-colors hover:opacity-90"
               >
                 <svg
@@ -183,6 +215,15 @@ export function BookDetailPage() {
               loansError instanceof Error ? loansError.message : 'Failed to load loan history'
             }
             onRetry={handleRetryLoans}
+          />
+
+          <DeleteBookDialog
+            isOpen={isDeleteDialogOpen}
+            bookTitle={resolvedBook.title}
+            isDeleting={deleteBookMutation.isPending}
+            error={deleteBookMutation.error}
+            onConfirm={handleConfirmDelete}
+            onCancel={handleCloseDeleteDialog}
           />
         </>
       )}

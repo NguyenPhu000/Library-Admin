@@ -21,3 +21,9 @@ export async function getTags(): Promise<string[]> {
   const response = await apiClient<{ data: string[] } | string[]>('/tags');
   return Array.isArray(response) ? response : response.data;
 }
+
+export async function deleteBook(id: number): Promise<void> {
+  return apiClient<void>(`/books/${id}`, {
+    method: 'DELETE',
+  });
+}
