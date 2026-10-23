@@ -73,4 +73,63 @@ describe('BooksPage', () => {
     expect(await screen.findByText('No books found.')).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
+
+  it('filters books table when user selects a tag', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<BooksPage />);
+
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Clean Code' })).toBeInTheDocument();
+
+    const tagSelect = screen.getByRole('combobox', { name: /tag/i });
+    await screen.findByRole('option', { name: 'JavaScript' });
+    await user.selectOptions(tagSelect, 'JavaScript');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('link', { name: 'Clean Code' })).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('link', { name: "You Don't Know JS Yet" })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Node.js Design Patterns' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Eloquent JavaScript' })).toBeInTheDocument();
+  });
+
+  it('filters books table when user selects a status', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<BooksPage />);
+
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Clean Code' })).toBeInTheDocument();
+
+    const statusSelect = screen.getByRole('combobox', { name: /status/i });
+    await user.selectOptions(statusSelect, 'OUT_OF_STOCK');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('link', { name: 'Clean Code' })).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('link', { name: 'Designing Data-Intensive Applications' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Eloquent JavaScript' })).toBeInTheDocument();
+  });
+
+  it('resets all filters when user clicks Clear filters button', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<BooksPage />);
+
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+
+    const statusSelect = screen.getByRole('combobox', { name: /status/i });
+    await user.selectOptions(statusSelect, 'OUT_OF_STOCK');
+
+    await waitFor(() => {
+      expect(screen.queryByRole('link', { name: 'Clean Code' })).not.toBeInTheDocument();
+    });
+
+    const clearButton = screen.getByRole('button', { name: /clear filters/i });
+    await user.click(clearButton);
+
+    expect(await screen.findByRole('link', { name: 'Clean Code' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'The Pragmatic Programmer' })).toBeInTheDocument();
+    expect(statusSelect).toHaveValue('');
+  });
 });
