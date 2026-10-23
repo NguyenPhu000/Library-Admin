@@ -95,8 +95,9 @@ export function BookFormPage({ mode }: BookFormPageProps) {
   }
 
   function handleSubmit(values: BookFormValues) {
+    const availableCopies = values.totalCopies - (isEditMode ? resolvedOnLoan : 0);
     const nextStatus =
-      values.totalCopies > 0 ? BOOK_STATUS.AVAILABLE : BOOK_STATUS.OUT_OF_STOCK;
+      availableCopies > 0 ? BOOK_STATUS.AVAILABLE : BOOK_STATUS.OUT_OF_STOCK;
 
     if (isEditMode) {
       if (!isValidId) {
