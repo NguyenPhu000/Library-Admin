@@ -7,3 +7,9 @@ export async function getBooks(params?: BookListParams): Promise<PaginatedRespon
   const query = buildQueryString(params as Record<string, string | number | undefined>);
   return apiClient<PaginatedResponse<BookItem>>(`/books${query}`);
 }
+
+export async function getTags(): Promise<string[]> {
+  const response = await apiClient<{ data: string[] } | string[]>('/tags');
+  return Array.isArray(response) ? response : response.data;
+}
+
