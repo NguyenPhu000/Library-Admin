@@ -21,7 +21,9 @@ export function BooksPage() {
     status: selectedStatus || undefined,
   });
 
-  const { data: tags = [] } = useTags();
+  const { data: apiTags = [] } = useTags();
+  const bookTags = Array.from(new Set(data?.data.flatMap((book) => book.tags) || []));
+  const availableTags = apiTags.length > 0 ? apiTags : bookTags;
 
   function handleClearFilters() {
     setSearchQuery('');
@@ -48,7 +50,7 @@ export function BooksPage() {
         selectedStatus={selectedStatus}
         onStatusChange={setSelectedStatus}
         onClearFilters={handleClearFilters}
-        availableTags={tags}
+        availableTags={availableTags}
       />
 
       {isLoading && (
