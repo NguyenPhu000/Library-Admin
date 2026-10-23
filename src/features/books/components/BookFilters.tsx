@@ -57,7 +57,7 @@ export function BookFilters({
       </label>
 
       {/* Tag Select */}
-      <label className="flex flex-[1_1_160px] min-w-[140px] flex-col gap-1.5 text-[13px] font-semibold text-ink">
+      <label className="flex w-full flex-col gap-1.5 text-[13px] font-semibold text-ink sm:w-[200px] sm:flex-initial">
         Tag
         <div className="relative">
           <select
@@ -91,7 +91,7 @@ export function BookFilters({
       </label>
 
       {/* Status Select */}
-      <label className="flex flex-[1_1_160px] min-w-[140px] flex-col gap-1.5 text-[13px] font-semibold text-ink">
+      <label className="flex w-full flex-col gap-1.5 text-[13px] font-semibold text-ink sm:w-[200px] sm:flex-initial">
         Status
         <div className="relative">
           <select
