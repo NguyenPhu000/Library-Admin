@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router';
 
-import { getBreadcrumbs, useBreadcrumbDetailLabel } from './breadcrumbs';
+import { useBreadcrumbDetailLabel } from './BreadcrumbContext';
+import { getBreadcrumbs } from './breadcrumbs';
 
 export function Breadcrumb() {
   const { pathname } = useLocation();

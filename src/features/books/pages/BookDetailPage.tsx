@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router';
 
-import { useSetBreadcrumbDetailLabel } from '../../../components/layout/breadcrumbs';
+import { useSetBreadcrumbDetailLabel } from '../../../components/layout/BreadcrumbContext';
 import { BookInformationCard } from '../components/BookInformationCard';
 import { StockBadge } from '../components/StockBadge';
 import { StockCard } from '../components/StockCard';

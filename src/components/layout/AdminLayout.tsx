@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Outlet } from 'react-router';
 
-import { BreadcrumbContext } from './breadcrumbs';
+import { BreadcrumbContext } from './BreadcrumbContext';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 

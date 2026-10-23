@@ -1,5 +1,3 @@
-import { createContext, useContext, useEffect } from 'react';
-
 export interface BreadcrumbItem {
   label: string;
   to?: string;
@@ -49,29 +47,4 @@ export function getBreadcrumbs(pathname: string, detailLabel?: string): Breadcru
   }
 
   return NOT_FOUND_CRUMBS;
-}
-
-interface BreadcrumbContextValue {
-  detailLabel?: string;
-  setDetailLabel: (label?: string) => void;
-}
-
-export const BreadcrumbContext = createContext<BreadcrumbContextValue>({
-  detailLabel: undefined,
-  setDetailLabel: () => {},
-});
-
-export function useBreadcrumbDetailLabel() {
-  return useContext(BreadcrumbContext).detailLabel;
-}
-
-export function useSetBreadcrumbDetailLabel(label?: string) {
-  const { setDetailLabel } = useContext(BreadcrumbContext);
-
-  useEffect(() => {
-    setDetailLabel(label);
-    return () => {
-      setDetailLabel(undefined);
-    };
-  }, [label, setDetailLabel]);
 }
