@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
-import { SEED_BOOKS, SEED_TAGS } from './data';
-import type { PaginatedResponse } from '../../shared/types/api';
+import { getSeedBookDetail, SEED_BOOKS, SEED_TAGS } from './data';
+import type { ApiErrorResponse, PaginatedResponse } from '../../shared/types/api';
 import type { BookItem } from '../../features/books/types/book';
 
 export const handlers = [
@@ -44,5 +44,24 @@ export const handlers = [
     };
 
     return HttpResponse.json(response);
+  }),
+
+  http.get('*/api/v1/books/:id', ({ params }) => {
+    const rawId = String(params.id ?? '');
+    const id = Number(rawId);
+    const detail = Number.isInteger(id) ? getSeedBookDetail(id) : undefined;
+
+    if (!detail) {
+      const errorResponse: ApiErrorResponse = {
+        error: {
+          code: 'BOOK_NOT_FOUND',
+          message: `Book with ID ${rawId} does not exist`,
+          requestId: 'req-123',
+        },
+      };
+      return HttpResponse.json(errorResponse, { status: 404 });
+    }
+
+    return HttpResponse.json(detail);
   }),
 ];

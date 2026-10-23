@@ -1,4 +1,4 @@
-import type { BookItem } from '../../features/books/types/book';
+import type { BookDetail, BookItem } from '../../features/books/types/book';
 
 export const SEED_BOOKS: BookItem[] = [
   {
@@ -26,7 +26,7 @@ export const SEED_BOOKS: BookItem[] = [
     publisher: 'Addison-Wesley',
     edition: '20th Anniversary Edition',
     description: 'Your journey to mastery in software development.',
-    totalCopies: 2,
+    totalCopies: 5,
     tags: ['Programming', 'Career'],
     status: 'AVAILABLE',
     addedOn: '2026-09-12',
@@ -131,7 +131,33 @@ export const SEED_BOOKS: BookItem[] = [
   },
 ];
 
+const SEED_ON_LOAN_BY_BOOK_ID: Record<number, number> = {
+  1: 1,
+  2: 3,
+  3: 0,
+  4: 1,
+  5: 2,
+  6: 0,
+  7: 0,
+  8: 1,
+};
+
+export function getSeedBookDetail(id: number): BookDetail | undefined {
+  const book = SEED_BOOKS.find((item) => item.id === id);
+  if (!book) {
+    return undefined;
+  }
+
+  const onLoan = SEED_ON_LOAN_BY_BOOK_ID[book.id] ?? 0;
+  const available = Math.max(0, book.totalCopies - onLoan);
+
+  return {
+    ...book,
+    onLoan,
+    available,
+  };
+}
+
 export const SEED_TAGS: string[] = Array.from(
   new Set(SEED_BOOKS.flatMap((book) => book.tags)),
 );
-

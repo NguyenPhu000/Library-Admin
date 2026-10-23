@@ -34,7 +34,7 @@ describe('app routes', () => {
   it.each([
     ['/books', 'Books'],
     ['/books/new', 'Add book'],
-    ['/books/7', 'Book details'],
+    ['/books/7', 'Eloquent JavaScript'],
     ['/books/7/edit', 'Edit book'],
   ])('renders %s with heading "%s"', async (path, heading) => {
     await renderAt(path);
