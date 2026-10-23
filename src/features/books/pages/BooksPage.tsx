@@ -1,9 +1,18 @@
+import { useState } from 'react';
+
 import { useBooks } from '../hooks/useBooks';
 import { PageHeader } from '../components/PageHeader';
+import { BookFilters } from '../components/BookFilters';
 import { BookTable } from '../components/BookTable';
+import { useDebounce } from '../../../shared/hooks/useDebounce';
 
 export function BooksPage() {
-  const { data, isLoading, isError, error, refetch } = useBooks();
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedQuery = useDebounce(searchQuery, 300);
+
+  const { data, isLoading, isError, error, refetch } = useBooks({
+    q: debouncedQuery.trim() || undefined,
+  });
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -13,6 +22,8 @@ export function BooksPage() {
         actionText="Add book"
         actionTo="/books/new"
       />
+
+      <BookFilters searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {isLoading && (
         <div
