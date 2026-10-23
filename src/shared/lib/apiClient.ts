@@ -4,6 +4,10 @@ const DEFAULT_BASE_URL = 'http://localhost:3000/api/v1';
 
 export function getBaseUrl(): string {
   const envUrl = import.meta.env.VITE_API_URL;
+  if (import.meta.env.DEV && envUrl && envUrl.includes('.ngrok')) {
+    // In local dev, route ngrok domains through Vite proxy to bypass browser CORS & ngrok warning
+    return '/api/v1';
+  }
   return envUrl && typeof envUrl === 'string' && envUrl.length > 0 ? envUrl : DEFAULT_BASE_URL;
 }
 
@@ -15,6 +19,9 @@ export async function apiClient<T>(endpoint: string, options: RequestInit = {}):
   const headers = new Headers(options.headers);
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
+  }
+  if (!headers.has('ngrok-skip-browser-warning')) {
+    headers.set('ngrok-skip-browser-warning', 'true');
   }
 
   const response = await fetch(url, {

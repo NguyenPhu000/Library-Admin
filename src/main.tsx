@@ -6,9 +6,17 @@ import './index.css';
 
 async function enableMocking() {
   const isMswEnabled = import.meta.env.VITE_ENABLE_MSW !== 'false';
-  if (import.meta.env.DEV && isMswEnabled) {
-    const { worker } = await import('./test/mocks/browser');
-    return worker.start();
+  if (import.meta.env.DEV) {
+    if (isMswEnabled) {
+      const { worker } = await import('./test/mocks/browser');
+      return worker.start();
+    }
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+      }
+    }
   }
 }
 
