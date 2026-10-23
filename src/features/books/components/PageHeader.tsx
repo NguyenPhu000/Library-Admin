@@ -9,14 +9,19 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actionText, actionTo }: PageHeaderProps) {
   return (
-    <div className="page-header">
-      <div className="page-header__titles">
-        <h1 className="page-header__title">{title}</h1>
-        <p className="page-header__description">{description}</p>
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-col gap-1">
+        <h1 className="font-display text-[32px] font-extrabold leading-tight text-ink">
+          {title}
+        </h1>
+        <p className="m-0 text-sm text-ink-muted">{description}</p>
       </div>
 
       {actionText && actionTo && (
-        <Link to={actionTo} className="page-header__action">
+        <Link
+          to={actionTo}
+          className="inline-flex min-h-[44px] items-center gap-2 rounded-control bg-brand-600 px-[18px] font-semibold text-white no-underline transition-colors hover:bg-night-700"
+        >
           <svg
             width="18"
             height="18"
