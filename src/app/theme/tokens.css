@@ -1,0 +1,62 @@
+/* Design tokens extracted from docs/ui-spec.md (Main.dc.html reference). */
+:root {
+  /* Brand & night palette */
+  --night-900: #150829;
+  --night-700: #3d1766;
+  --brand-600: #5a1e96;
+  --magenta-600: #9b3fc2;
+  --violet-500: #7a4fe8;
+  --orchid-400: #d17ff0;
+  --cyan-400: #4fd1e8;
+
+  /* Ink */
+  --ink: #16121f;
+  --ink-muted: #5b5570;
+  --ink-subtle: #8a93a0;
+  --on-dark: #ffffff;
+  --on-dark-muted: #c9bfe0;
+  --on-dark-soft: #e3d9f5;
+  --on-dark-faint: #9884b8;
+  --arrow-on-dark: #7a5a9e;
+
+  /* Surfaces & borders */
+  --surface: #ffffff;
+  --surface-row-alt: #f5f0fa;
+  --surface-tint: #f1e8fb;
+  --surface-tint-border: #e3d2f5;
+  --border: #e3e6e4;
+  --border-dashed: #c7b8dc;
+
+  /* Semantic */
+  --success: #1f9254;
+  --success-surface: #e6f6ec;
+  --success-ink: #176b3e;
+  --warn-surface: #fff3e9;
+  --warn-border: #f2d3b0;
+  --warn-ink: #7a3a0f;
+  --warn-icon: #c4622a;
+
+  /* Typography */
+  --font-display: 'Baloo 2', Arial, sans-serif;
+  --font-sans: Inter, Arial, sans-serif;
+  --font-mono: ui-monospace, Menlo, Consolas, monospace;
+
+  /* Radii */
+  --radius-control: 10px;
+  --radius-strip: 14px;
+  --radius-card: 16px;
+  --radius-panel: 20px;
+  --radius-pill: 999px;
+
+  /* Spacing */
+  --gap-section: 40px;
+  --gap-block: 32px;
+  --gap-grid: 24px;
+  --gap-tight: 12px;
+
+  /* Sizing */
+  --control-height: 44px;
+  --control-height-compact: 40px;
+  --sidebar-width: 240px;
+  --content-max-width: 1200px;
+}
