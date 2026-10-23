@@ -5,13 +5,17 @@ import { useTags } from '../hooks/useTags';
 import { PageHeader } from '../components/PageHeader';
 import { BookFilters } from '../components/BookFilters';
 import { BookTable } from '../components/BookTable';
+import { Pagination } from '../components/Pagination';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
 import type { BookStatus } from '../types/book';
+
+const PAGE_SIZE = 10;
 
 export function BooksPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<BookStatus | ''>('');
+  const [page, setPage] = useState(1);
 
   const debouncedQuery = useDebounce(searchQuery, 300);
 
@@ -19,16 +23,34 @@ export function BooksPage() {
     q: debouncedQuery.trim() || undefined,
     tag: selectedTag || undefined,
     status: selectedStatus || undefined,
+    page,
+    limit: PAGE_SIZE,
   });
 
   const { data: apiTags = [] } = useTags();
   const bookTags = Array.from(new Set(data?.data.flatMap((book) => book.tags) || []));
   const availableTags = apiTags.length > 0 ? apiTags : bookTags;
 
+  function handleSearchChange(query: string) {
+    setSearchQuery(query);
+    setPage(1);
+  }
+
+  function handleTagChange(tag: string) {
+    setSelectedTag(tag);
+    setPage(1);
+  }
+
+  function handleStatusChange(status: BookStatus | '') {
+    setSelectedStatus(status);
+    setPage(1);
+  }
+
   function handleClearFilters() {
     setSearchQuery('');
     setSelectedTag('');
     setSelectedStatus('');
+    setPage(1);
   }
 
   const hasActiveFilters = Boolean(searchQuery || selectedTag || selectedStatus);
@@ -44,11 +66,11 @@ export function BooksPage() {
 
       <BookFilters
         searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+        onSearchChange={handleSearchChange}
         selectedTag={selectedTag}
-        onTagChange={setSelectedTag}
+        onTagChange={handleTagChange}
         selectedStatus={selectedStatus}
-        onStatusChange={setSelectedStatus}
+        onStatusChange={handleStatusChange}
         onClearFilters={handleClearFilters}
         availableTags={availableTags}
       />
@@ -95,7 +117,15 @@ export function BooksPage() {
       )}
 
       {!isLoading && !isError && data && data.data.length > 0 && (
-        <BookTable books={data.data} />
+        <>
+          <BookTable books={data.data} />
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={data.total}
+            onPageChange={setPage}
+          />
+        </>
       )}
     </div>
   );

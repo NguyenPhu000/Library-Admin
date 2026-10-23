@@ -86,37 +86,6 @@ export function BookTable({ books }: BookTableProps) {
           </tbody>
         </table>
       </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-surface px-4 py-3 text-ink-muted">
-        <span className="text-[13px] text-ink-muted">
-          Showing 1–{books.length} of {books.length} books
-        </span>
-        <nav aria-label="Pagination" className="flex items-center gap-1.5">
-          <button
-            type="button"
-            disabled
-            className="inline-flex min-h-[40px] min-w-[40px] cursor-not-allowed items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium text-[#8A93A0] opacity-60 transition-colors"
-            aria-label="Previous page"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            aria-current="page"
-            className="inline-flex min-h-[40px] min-w-[40px] cursor-pointer items-center justify-center rounded-control border border-brand-600 bg-brand-600 px-2.5 text-sm font-semibold text-on-dark transition-colors"
-          >
-            1
-          </button>
-          <button
-            type="button"
-            disabled
-            className="inline-flex min-h-[40px] min-w-[40px] cursor-not-allowed items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium text-[#8A93A0] opacity-60 transition-colors"
-            aria-label="Next page"
-          >
-            ›
-          </button>
-        </nav>
-      </div>
     </div>
   );
 }
