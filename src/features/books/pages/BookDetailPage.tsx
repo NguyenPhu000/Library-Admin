@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router';
 
+import { useSetBreadcrumbDetailLabel } from '../../../components/layout/breadcrumbs';
 import { BookInformationCard } from '../components/BookInformationCard';
 import { StockBadge } from '../components/StockBadge';
 import { StockCard } from '../components/StockCard';
@@ -12,6 +13,7 @@ export function BookDetailPage() {
   const isValidId = Boolean(bookId) && Number.isInteger(parsedId) && parsedId > 0;
 
   const { data: book, isLoading, isError, error, refetch } = useBook(parsedId);
+  useSetBreadcrumbDetailLabel(book?.title);
 
   return (
     <div className="flex w-full flex-col gap-6">

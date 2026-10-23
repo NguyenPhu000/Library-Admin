@@ -19,10 +19,17 @@ describe('getBreadcrumbs', () => {
     ]);
   });
 
-  it('returns Books / Book details for the detail route', () => {
+  it('returns Books / Book details for the detail route by default', () => {
     expect(getBreadcrumbs('/books/12')).toEqual([
       { label: 'Books', to: '/books' },
       { label: 'Book details' },
+    ]);
+  });
+
+  it('returns Books / <book title> when detailLabel is provided', () => {
+    expect(getBreadcrumbs('/books/2', 'The Pragmatic Programmer')).toEqual([
+      { label: 'Books', to: '/books' },
+      { label: 'The Pragmatic Programmer' },
     ]);
   });
 

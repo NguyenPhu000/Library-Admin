@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
@@ -41,5 +41,23 @@ describe('app routes', () => {
 
     expect(await screen.findByRole('heading', { level: 1, name: heading })).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Main menu' })).toBeInTheDocument();
+  });
+
+  it('displays the loaded book title in the header breadcrumb on /books/:bookId', async () => {
+    await renderAt('/books/2');
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'The Pragmatic Programmer' }),
+    ).toBeInTheDocument();
+
+    const breadcrumb = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(breadcrumb).getByRole('link', { name: 'Books' })).toHaveAttribute(
+      'href',
+      '/books',
+    );
+    expect(within(breadcrumb).getByText('The Pragmatic Programmer')).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 });

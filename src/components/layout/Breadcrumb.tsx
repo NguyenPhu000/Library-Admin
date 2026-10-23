@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router';
 
-import { getBreadcrumbs } from './breadcrumbs';
+import { getBreadcrumbs, useBreadcrumbDetailLabel } from './breadcrumbs';
 
 export function Breadcrumb() {
   const { pathname } = useLocation();
-  const items = getBreadcrumbs(pathname);
+  const detailLabel = useBreadcrumbDetailLabel();
+  const items = getBreadcrumbs(pathname, detailLabel);
 
   return (
     <nav aria-label="Breadcrumb">
@@ -13,7 +14,7 @@ export function Breadcrumb() {
           const isCurrent = index === items.length - 1;
 
           return (
-            <li key={item.label} className="flex items-center gap-2">
+            <li key={`${index}-${item.label}`} className="flex items-center gap-2">
               {index > 0 && (
                 <span aria-hidden="true" className="text-ink-muted select-none">
                   /

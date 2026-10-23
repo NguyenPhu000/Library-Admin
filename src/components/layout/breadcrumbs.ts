@@ -1,3 +1,5 @@
+import { createContext, useContext, useEffect } from 'react';
+
 export interface BreadcrumbItem {
   label: string;
   to?: string;
@@ -12,7 +14,7 @@ const SECTION_LABELS: Record<string, string> = {
 
 const NOT_FOUND_CRUMBS: BreadcrumbItem[] = [{ label: 'Not found' }];
 
-export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
+export function getBreadcrumbs(pathname: string, detailLabel?: string): BreadcrumbItem[] {
   const segments = pathname.split('/').filter(Boolean);
   const [section, second, third] = segments;
 
@@ -30,16 +32,46 @@ export function getBreadcrumbs(pathname: string): BreadcrumbItem[] {
   }
 
   const booksCrumb: BreadcrumbItem = { label: 'Books', to: '/books' };
+  const resolvedDetailLabel = detailLabel?.trim() ? detailLabel.trim() : 'Book details';
 
   if (segments.length === 2) {
     return second === 'new'
       ? [booksCrumb, { label: 'Add book' }]
-      : [booksCrumb, { label: 'Book details' }];
+      : [booksCrumb, { label: resolvedDetailLabel }];
   }
 
   if (segments.length === 3 && third === 'edit' && second !== 'new') {
-    return [booksCrumb, { label: 'Book details', to: `/books/${second}` }, { label: 'Edit' }];
+    return [
+      booksCrumb,
+      { label: resolvedDetailLabel, to: `/books/${second}` },
+      { label: 'Edit' },
+    ];
   }
 
   return NOT_FOUND_CRUMBS;
+}
+
+interface BreadcrumbContextValue {
+  detailLabel?: string;
+  setDetailLabel: (label?: string) => void;
+}
+
+export const BreadcrumbContext = createContext<BreadcrumbContextValue>({
+  detailLabel: undefined,
+  setDetailLabel: () => {},
+});
+
+export function useBreadcrumbDetailLabel() {
+  return useContext(BreadcrumbContext).detailLabel;
+}
+
+export function useSetBreadcrumbDetailLabel(label?: string) {
+  const { setDetailLabel } = useContext(BreadcrumbContext);
+
+  useEffect(() => {
+    setDetailLabel(label);
+    return () => {
+      setDetailLabel(undefined);
+    };
+  }, [label, setDetailLabel]);
 }
