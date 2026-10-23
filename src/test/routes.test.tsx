@@ -1,12 +1,25 @@
 import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider, createMemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 import { appRoutes } from '../app/router/routes';
 
 async function renderAt(path: string) {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
   const router = createMemoryRouter(appRoutes, { initialEntries: [path] });
-  render(<RouterProvider router={router} />);
+  render(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
   return router;
 }
 
@@ -20,9 +33,9 @@ describe('app routes', () => {
 
   it.each([
     ['/books', 'Books'],
-    ['/dashboard', 'Dashboard'],
-    ['/members', 'Members'],
-    ['/loans', 'Loans'],
+    ['/books/new', 'Add book'],
+    ['/books/7', 'Book details'],
+    ['/books/7/edit', 'Edit book'],
   ])('renders %s with heading "%s"', async (path, heading) => {
     await renderAt(path);
 
