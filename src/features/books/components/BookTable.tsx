@@ -10,60 +10,74 @@ interface BookTableProps {
 
 export function BookTable({ books }: BookTableProps) {
   return (
-    <div className="book-table-card">
-      <div className="book-table-scroll">
-        <table className="book-table">
+    <div className="overflow-hidden rounded-card border border-border bg-surface shadow-xs">
+      <div className="w-full overflow-x-auto">
+        <table className="w-full min-w-[820px] border-collapse">
           <thead>
-            <tr>
-              <th scope="col" className="book-table__th--left book-table__th--title">
+            <tr className="bg-surface-row-alt text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              <th scope="col" className="w-[26%] min-w-[200px] px-4 py-3.5 text-left font-semibold whitespace-nowrap">
                 Title
               </th>
-              <th scope="col" className="book-table__th--left book-table__th--author">
+              <th scope="col" className="w-[20%] min-w-[150px] px-4 py-3.5 text-left font-semibold whitespace-nowrap">
                 Author
               </th>
-              <th scope="col" className="book-table__th--left book-table__th--year">
+              <th scope="col" className="w-[8%] min-w-[70px] px-4 py-3.5 text-left font-semibold whitespace-nowrap">
                 Year
               </th>
-              <th scope="col" className="book-table__th--left book-table__th--tags">
+              <th scope="col" className="w-[22%] min-w-[160px] px-4 py-3.5 text-left font-semibold whitespace-nowrap">
                 Tags
               </th>
-              <th scope="col" className="book-table__th--right book-table__th--stock">
+              <th scope="col" className="w-[8%] min-w-[70px] px-4 py-3.5 text-right font-semibold whitespace-nowrap">
                 Stock
               </th>
-              <th scope="col" className="book-table__th--left book-table__th--status">
+              <th scope="col" className="w-[10%] min-w-[110px] px-4 py-3.5 text-left font-semibold whitespace-nowrap">
                 Status
               </th>
-              <th scope="col" className="book-table__th--right book-table__th--actions">
+              <th scope="col" className="w-[6%] min-w-[90px] px-4 py-3.5 text-right font-semibold whitespace-nowrap">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody>
             {books.map((book) => (
-              <tr key={book.id} className="book-table__row">
-                <td className="book-table__cell--title">
-                  <Link to={`/books/${book.id}`} className="book-table__title-link">
+              <tr
+                key={book.id}
+                className="border-t border-border transition-colors hover:bg-[#faf7fd]"
+              >
+                <td className="px-4 py-3.5 text-left align-middle">
+                  <Link
+                    to={`/books/${book.id}`}
+                    className="font-semibold text-brand-600 no-underline hover:text-night-700 hover:underline"
+                  >
                     {book.title}
                   </Link>
                 </td>
-                <td className="book-table__cell--muted">{book.author}</td>
-                <td className="book-table__cell--muted">{book.publishedYear}</td>
-                <td className="book-table__cell--tags">
-                  <div className="book-table__tags-list">
+                <td className="px-4 py-3.5 text-left align-middle text-ink-muted">{book.author}</td>
+                <td className="px-4 py-3.5 text-left align-middle text-ink-muted">{book.publishedYear}</td>
+                <td className="px-4 py-3.5 text-left align-middle">
+                  <div className="flex flex-wrap gap-1.5">
                     {book.tags.map((tag) => (
                       <TagBadge key={tag} tag={tag} />
                     ))}
                   </div>
                 </td>
-                <td className="book-table__cell--stock">{book.totalCopies}</td>
-                <td className="book-table__cell--status">
+                <td className="px-4 py-3.5 text-right align-middle font-medium tabular-nums text-ink">
+                  {book.totalCopies}
+                </td>
+                <td className="px-4 py-3.5 text-left align-middle">
                   <StockBadge status={book.status} />
                 </td>
-                <td className="book-table__cell--actions">
-                  <Link to={`/books/${book.id}`} className="book-table__action-link">
+                <td className="px-4 py-3.5 text-right align-middle whitespace-nowrap">
+                  <Link
+                    to={`/books/${book.id}`}
+                    className="inline-block font-semibold text-brand-600 no-underline hover:text-night-700 hover:underline"
+                  >
                     View
                   </Link>
-                  <Link to={`/books/${book.id}/edit`} className="book-table__action-link">
+                  <Link
+                    to={`/books/${book.id}/edit`}
+                    className="ml-4 inline-block font-semibold text-brand-600 no-underline hover:text-night-700 hover:underline"
+                  >
                     Edit
                   </Link>
                 </td>
@@ -73,15 +87,15 @@ export function BookTable({ books }: BookTableProps) {
         </table>
       </div>
 
-      <div className="book-table__pagination">
-        <span className="book-table__summary">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-surface px-4 py-3 text-ink-muted">
+        <span className="text-[13px] text-ink-muted">
           Showing 1–{books.length} of {books.length} books
         </span>
-        <nav aria-label="Pagination" className="book-table__pagination-nav">
+        <nav aria-label="Pagination" className="flex items-center gap-1.5">
           <button
             type="button"
             disabled
-            className="book-table__page-btn"
+            className="inline-flex min-h-[40px] min-w-[40px] cursor-not-allowed items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium text-[#8A93A0] opacity-60 transition-colors"
             aria-label="Previous page"
           >
             ‹
@@ -89,14 +103,14 @@ export function BookTable({ books }: BookTableProps) {
           <button
             type="button"
             aria-current="page"
-            className="book-table__page-btn book-table__page-btn--active"
+            className="inline-flex min-h-[40px] min-w-[40px] cursor-pointer items-center justify-center rounded-control border border-brand-600 bg-brand-600 px-2.5 text-sm font-semibold text-on-dark transition-colors"
           >
             1
           </button>
           <button
             type="button"
             disabled
-            className="book-table__page-btn"
+            className="inline-flex min-h-[40px] min-w-[40px] cursor-not-allowed items-center justify-center rounded-control border border-border bg-surface px-2.5 text-sm font-medium text-[#8A93A0] opacity-60 transition-colors"
             aria-label="Next page"
           >
             ›
