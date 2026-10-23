@@ -6,6 +6,7 @@ import type { BookItem } from '../types/book';
 
 interface BookTableProps {
   books: BookItem[];
+  onDelete?: (book: BookItem) => void;
 }
 
 const BOOK_TABLE_COLUMNS = [
@@ -18,7 +19,7 @@ const BOOK_TABLE_COLUMNS = [
   { label: 'Actions', className: 'w-[6%] min-w-[90px] text-right' },
 ] as const;
 
-export function BookTable({ books }: BookTableProps) {
+export function BookTable({ books, onDelete }: BookTableProps) {
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface shadow-xs">
       <div className="w-full overflow-x-auto">
@@ -78,6 +79,15 @@ export function BookTable({ books }: BookTableProps) {
                   >
                     Edit
                   </Link>
+                  {onDelete && (
+                    <button
+                      type="button"
+                      onClick={() => onDelete(book)}
+                      className="ml-4 inline-block cursor-pointer font-semibold text-warn-ink hover:underline"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

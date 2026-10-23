@@ -7,5 +7,6 @@ export function useTags() {
   return useQuery({
     queryKey: booksKeys.tags(),
     queryFn: getTags,
+    retry: false,
   });
 }

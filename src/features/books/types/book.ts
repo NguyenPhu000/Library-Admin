@@ -20,6 +20,13 @@ export const LOAN_STATUS = {
 
 export type LoanStatus = (typeof LOAN_STATUS)[keyof typeof LOAN_STATUS];
 
+export const BOOK_FORM_MODE = {
+  CREATE: 'create',
+  EDIT: 'edit',
+} as const;
+
+export type BookFormMode = (typeof BOOK_FORM_MODE)[keyof typeof BOOK_FORM_MODE];
+
 export const DEFAULT_PAGE_SIZE = 10;
 export const SEARCH_DEBOUNCE_MS = 300;
 
@@ -62,4 +69,30 @@ export interface BookListParams {
   status?: BookStatus | '';
   page?: number;
   limit?: number;
+}
+
+export interface CreateBookPayload {
+  title: string;
+  author: string;
+  isbn: string;
+  publishedYear: number;
+  publisher?: string | null;
+  edition?: string | null;
+  description?: string | null;
+  totalCopies: number;
+  tags?: string[];
+  status?: BookStatus;
+}
+
+export interface UpdateBookPayload {
+  title?: string;
+  author?: string;
+  isbn?: string;
+  publishedYear?: number;
+  publisher?: string | null;
+  edition?: string | null;
+  description?: string | null;
+  totalCopies?: number;
+  tags?: string[];
+  status?: BookStatus;
 }

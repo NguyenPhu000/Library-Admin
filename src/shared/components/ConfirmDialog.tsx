@@ -61,7 +61,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descriptionId}
-        className="flex w-full max-w-md flex-col gap-4 rounded-card border border-border bg-surface p-6 text-ink shadow-xl"
+        className="flex w-full max-w-md flex-col gap-4 rounded-panel border border-border bg-surface p-6 text-ink shadow-xl"
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex flex-col gap-2">

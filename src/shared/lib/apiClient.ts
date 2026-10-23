@@ -1,4 +1,4 @@
-import { ApiError, type ApiErrorResponse } from '../types/api';
+import { ApiError, type ApiErrorDetail } from '../types/api';
 
 const DEFAULT_BASE_URL = 'http://localhost:3000/api/v1';
 
@@ -11,13 +11,20 @@ export function getBaseUrl(): string {
   return envUrl && typeof envUrl === 'string' && envUrl.length > 0 ? envUrl : DEFAULT_BASE_URL;
 }
 
+interface RawErrorPayload {
+  code?: string;
+  message?: string;
+  error?: string | ApiErrorDetail;
+}
+
 export async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const baseUrl = getBaseUrl().replace(/\/$/, '');
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = `${baseUrl}${cleanEndpoint}`;
 
   const headers = new Headers(options.headers);
-  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+  const hasBody = options.body !== undefined && options.body !== null;
+  if (hasBody && !headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
   }
   if (!headers.has('ngrok-skip-browser-warning')) {
@@ -39,9 +46,17 @@ export async function apiClient<T>(endpoint: string, options: RequestInit = {}):
   if (!response.ok) {
     if (isJson) {
       try {
-        const errorBody = (await response.json()) as ApiErrorResponse;
-        if (errorBody && errorBody.error) {
-          throw new ApiError(response.status, errorBody.error);
+        const errorBody = (await response.json()) as RawErrorPayload;
+        if (errorBody && typeof errorBody === 'object') {
+          if (errorBody.error && typeof errorBody.error === 'object') {
+            throw new ApiError(response.status, errorBody.error);
+          }
+          if (typeof errorBody.message === 'string') {
+            throw new ApiError(response.status, {
+              code: typeof errorBody.code === 'string' ? errorBody.code : 'HTTP_ERROR',
+              message: errorBody.message,
+            });
+          }
         }
       } catch (err) {
         if (err instanceof ApiError) {

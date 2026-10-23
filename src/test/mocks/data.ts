@@ -1,4 +1,12 @@
-import { BOOK_STATUS, LOAN_STATUS, type BookDetail, type BookItem, type Loan } from '../../features/books/types/book';
+import {
+  BOOK_STATUS,
+  LOAN_STATUS,
+  type BookDetail,
+  type BookItem,
+  type CreateBookPayload,
+  type Loan,
+  type UpdateBookPayload,
+} from '../../features/books/types/book';
 
 const INITIAL_SEED_BOOKS: BookItem[] = [
   {
@@ -233,6 +241,75 @@ export function getSeedBookDetail(id: number): BookDetail | undefined {
     onLoan,
     available,
   };
+}
+
+export function addSeedBook(payload: CreateBookPayload): BookItem {
+  const nextId =
+    SEED_BOOKS.reduce((maxId, item) => Math.max(maxId, item.id), 0) + 1;
+  const nowIso = new Date().toISOString();
+  const today = nowIso.slice(0, 10);
+
+  const created: BookItem = {
+    id: nextId,
+    title: payload.title,
+    author: payload.author,
+    publishedYear: payload.publishedYear,
+    isbn: payload.isbn,
+    publisher: payload.publisher ?? null,
+    edition: payload.edition ?? null,
+    description: payload.description ?? null,
+    totalCopies: payload.totalCopies,
+    tags: payload.tags ?? [],
+    status:
+      payload.status ??
+      (payload.totalCopies > 0 ? BOOK_STATUS.AVAILABLE : BOOK_STATUS.OUT_OF_STOCK),
+    addedOn: today,
+    createdAt: nowIso,
+    updatedAt: nowIso,
+  };
+
+  SEED_BOOKS.unshift(created);
+  return created;
+}
+
+export function updateSeedBook(
+  id: number,
+  payload: UpdateBookPayload,
+): BookItem | undefined {
+  const index = SEED_BOOKS.findIndex((item) => item.id === id);
+  if (index === -1) {
+    return undefined;
+  }
+
+  const existing = SEED_BOOKS[index]!;
+  const nextTotalCopies =
+    typeof payload.totalCopies === 'number'
+      ? payload.totalCopies
+      : existing.totalCopies;
+
+  const updated: BookItem = {
+    ...existing,
+    ...(payload.title !== undefined ? { title: payload.title } : {}),
+    ...(payload.author !== undefined ? { author: payload.author } : {}),
+    ...(payload.isbn !== undefined ? { isbn: payload.isbn } : {}),
+    ...(payload.publishedYear !== undefined
+      ? { publishedYear: payload.publishedYear }
+      : {}),
+    ...(payload.publisher !== undefined ? { publisher: payload.publisher } : {}),
+    ...(payload.edition !== undefined ? { edition: payload.edition } : {}),
+    ...(payload.description !== undefined
+      ? { description: payload.description }
+      : {}),
+    totalCopies: nextTotalCopies,
+    ...(payload.tags !== undefined ? { tags: payload.tags } : {}),
+    status:
+      payload.status ??
+      (nextTotalCopies > 0 ? BOOK_STATUS.AVAILABLE : BOOK_STATUS.OUT_OF_STOCK),
+    updatedAt: new Date().toISOString(),
+  };
+
+  SEED_BOOKS[index] = updated;
+  return updated;
 }
 
 export function removeSeedBook(id: number): boolean {

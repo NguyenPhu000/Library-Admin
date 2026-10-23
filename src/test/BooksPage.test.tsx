@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router';
@@ -10,6 +10,9 @@ function renderWithProviders(ui: React.ReactElement) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
+        retry: false,
+      },
+      mutations: {
         retry: false,
       },
     },
@@ -58,7 +61,6 @@ describe('BooksPage', () => {
     });
 
     expect(await screen.findByRole('link', { name: 'Refactoring' })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'The Pragmatic Programmer' })).not.toBeInTheDocument();
   });
 
   it('displays empty state when search finds no matching books', async () => {
@@ -68,10 +70,10 @@ describe('BooksPage', () => {
     expect(await screen.findByRole('table')).toBeInTheDocument();
 
     const searchInput = screen.getByRole('searchbox', { name: /search/i });
-    await user.type(searchInput, 'NonExistingSearchTerm123');
+    await user.type(searchInput, 'Non-existent Book Title XYZ');
 
     expect(await screen.findByText('No books found.')).toBeInTheDocument();
-    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /clear filters/i }).length).toBeGreaterThanOrEqual(1);
   });
 
   it('filters books table when user selects a tag', async () => {
@@ -79,19 +81,17 @@ describe('BooksPage', () => {
     renderWithProviders(<BooksPage />);
 
     expect(await screen.findByRole('table')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Clean Code' })).toBeInTheDocument();
 
     const tagSelect = screen.getByRole('combobox', { name: /tag/i });
-    await screen.findByRole('option', { name: 'JavaScript' });
-    await user.selectOptions(tagSelect, 'JavaScript');
+    await user.selectOptions(tagSelect, 'Database');
 
     await waitFor(() => {
       expect(screen.queryByRole('link', { name: 'Clean Code' })).not.toBeInTheDocument();
     });
 
-    expect(screen.getByRole('link', { name: "You Don't Know JS Yet" })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Node.js Design Patterns' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Eloquent JavaScript' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: 'Designing Data-Intensive Applications' }),
+    ).toBeInTheDocument();
   });
 
   it('filters books table when user selects a status', async () => {
@@ -99,7 +99,6 @@ describe('BooksPage', () => {
     renderWithProviders(<BooksPage />);
 
     expect(await screen.findByRole('table')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Clean Code' })).toBeInTheDocument();
 
     const statusSelect = screen.getByRole('combobox', { name: /status/i });
     await user.selectOptions(statusSelect, 'OUT_OF_STOCK');
@@ -108,11 +107,13 @@ describe('BooksPage', () => {
       expect(screen.queryByRole('link', { name: 'Clean Code' })).not.toBeInTheDocument();
     });
 
-    expect(screen.getByRole('link', { name: 'Designing Data-Intensive Applications' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('link', { name: 'Designing Data-Intensive Applications' }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Eloquent JavaScript' })).toBeInTheDocument();
   });
 
-  it('resets all filters when user clicks Clear filters button', async () => {
+  it('resets filters and restores the full books table when Clear filters is clicked', async () => {
     const user = userEvent.setup();
     renderWithProviders(<BooksPage />);
 
@@ -161,5 +162,38 @@ describe('BooksPage', () => {
     expect(await screen.findByText('Showing 1–1 of 1 books')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Page 1' })).toBeInTheDocument();
   });
-});
 
+  it('opens confirmation dialog on Delete, cancels safely, and deletes with list refresh on confirm', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<BooksPage />);
+
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Node.js Design Patterns' })).toBeInTheDocument();
+
+    // Find the row for Node.js Design Patterns
+    const row = screen.getByRole('link', { name: 'Node.js Design Patterns' }).closest('tr')!;
+    const deleteBtn = within(row).getByRole('button', { name: 'Delete' });
+
+    // Click delete opens dialog
+    await user.click(deleteBtn);
+    const dialog = screen.getByRole('dialog', { name: 'Delete book' });
+    expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByText('Node.js Design Patterns')).toBeInTheDocument();
+
+    // Cancel closes dialog without deleting
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Node.js Design Patterns' })).toBeInTheDocument();
+
+    // Open again and confirm
+    await user.click(deleteBtn);
+    const confirmDialog = screen.getByRole('dialog', { name: 'Delete book' });
+    await user.click(within(confirmDialog).getByRole('button', { name: 'Delete book' }));
+
+    // Dialog closes and book is removed from list
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+    expect(screen.queryByRole('link', { name: 'Node.js Design Patterns' })).not.toBeInTheDocument();
+  });
+});

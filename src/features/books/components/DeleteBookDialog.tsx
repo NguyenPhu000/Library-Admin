@@ -1,7 +1,7 @@
 import { ConfirmDialog } from '../../../shared/components/ConfirmDialog';
-import { ApiError } from '../../../shared/types/api';
+import { API_ERROR_CODE, ApiError } from '../../../shared/types/api';
 
-export const BOOK_HAS_ACTIVE_LOANS_CODE = 'BOOK_HAS_ACTIVE_LOANS';
+export const BOOK_HAS_ACTIVE_LOANS_CODE = API_ERROR_CODE.BOOK_HAS_ACTIVE_LOANS;
 
 interface DeleteBookDialogProps {
   isOpen: boolean;
