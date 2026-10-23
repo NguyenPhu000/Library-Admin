@@ -1,7 +1,7 @@
 export interface ApiErrorDetail {
   code: string;
   message: string;
-  details?: Record<string, string[]>;
+  details?: Record<string, unknown>;
   requestId?: string;
 }
 
@@ -19,7 +19,7 @@ export interface PaginatedResponse<T> {
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
-  readonly details?: Record<string, string[]>;
+  readonly details?: Record<string, unknown>;
   readonly requestId?: string;
 
   constructor(status: number, detail: ApiErrorDetail) {
