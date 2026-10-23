@@ -2,9 +2,20 @@ import type { BookDetail } from '../types/book';
 
 interface StockCardProps {
   book: BookDetail;
+  overdueCount?: number;
 }
 
-export function StockCard({ book }: StockCardProps) {
+function buildStockSummaryNote(overdueCount: number): string {
+  const reminderNote = 'Members are reminded 24 hours before the due date.';
+  if (overdueCount <= 0) {
+    return reminderNote;
+  }
+  const overduePrefix =
+    overdueCount === 1 ? '1 loan is overdue.' : `${overdueCount} loans are overdue.`;
+  return `${overduePrefix} ${reminderNote}`;
+}
+
+export function StockCard({ book, overdueCount = 0 }: StockCardProps) {
   return (
     <section
       aria-labelledby="book-stock-heading"
@@ -39,9 +50,7 @@ export function StockCard({ book }: StockCardProps) {
         </dl>
       </div>
 
-      <p className="m-0 text-sm text-ink-muted">
-        Members are reminded 24 hours before the due date.
-      </p>
+      <p className="m-0 text-sm text-ink-muted">{buildStockSummaryNote(overdueCount)}</p>
     </section>
   );
 }

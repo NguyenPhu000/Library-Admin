@@ -1,4 +1,4 @@
-import type { BookDetail, BookItem } from '../../features/books/types/book';
+import type { BookDetail, BookItem, Loan } from '../../features/books/types/book';
 
 export const SEED_BOOKS: BookItem[] = [
   {
@@ -131,16 +131,82 @@ export const SEED_BOOKS: BookItem[] = [
   },
 ];
 
-const SEED_ON_LOAN_BY_BOOK_ID: Record<number, number> = {
-  1: 1,
-  2: 3,
-  3: 0,
-  4: 1,
-  5: 2,
-  6: 0,
-  7: 0,
-  8: 1,
-};
+export const SEED_LOANS: Loan[] = [
+  {
+    id: 1,
+    bookId: 2,
+    memberId: 101,
+    memberName: 'Minh Tran',
+    borrowedDate: '2026-10-15',
+    dueDate: '2026-10-29',
+    returnedDate: null,
+    status: 'ACTIVE',
+  },
+  {
+    id: 2,
+    bookId: 2,
+    memberId: 102,
+    memberName: 'Lan Pham',
+    borrowedDate: '2026-10-02',
+    dueDate: '2026-10-16',
+    returnedDate: null,
+    status: 'OVERDUE',
+  },
+  {
+    id: 3,
+    bookId: 2,
+    memberId: 103,
+    memberName: 'Huy Nguyen',
+    borrowedDate: '2026-10-10',
+    dueDate: '2026-10-24',
+    returnedDate: null,
+    status: 'ACTIVE',
+  },
+  {
+    id: 4,
+    bookId: 2,
+    memberId: 104,
+    memberName: 'Thao Le',
+    borrowedDate: '2026-09-20',
+    dueDate: '2026-10-04',
+    returnedDate: '2026-10-03',
+    status: 'RETURNED',
+  },
+  {
+    id: 5,
+    bookId: 2,
+    memberId: 105,
+    memberName: 'Khoa Vo',
+    borrowedDate: '2026-09-01',
+    dueDate: '2026-09-15',
+    returnedDate: '2026-09-14',
+    status: 'RETURNED',
+  },
+  {
+    id: 6,
+    bookId: 1,
+    memberId: 106,
+    memberName: 'An Nguyen',
+    borrowedDate: '2026-10-12',
+    dueDate: '2026-10-26',
+    returnedDate: null,
+    status: 'ACTIVE',
+  },
+  {
+    id: 7,
+    bookId: 4,
+    memberId: 107,
+    memberName: 'Binh Le',
+    borrowedDate: '2026-10-11',
+    dueDate: '2026-10-25',
+    returnedDate: null,
+    status: 'ACTIVE',
+  },
+];
+
+export function getSeedBookLoans(bookId: number): Loan[] {
+  return SEED_LOANS.filter((loan) => loan.bookId === bookId);
+}
 
 export function getSeedBookDetail(id: number): BookDetail | undefined {
   const book = SEED_BOOKS.find((item) => item.id === id);
@@ -148,7 +214,10 @@ export function getSeedBookDetail(id: number): BookDetail | undefined {
     return undefined;
   }
 
-  const onLoan = SEED_ON_LOAN_BY_BOOK_ID[book.id] ?? 0;
+  const bookLoans = getSeedBookLoans(book.id);
+  const onLoan = bookLoans.filter(
+    (loan) => loan.status === 'ACTIVE' || loan.status === 'OVERDUE',
+  ).length;
   const available = Math.max(0, book.totalCopies - onLoan);
 
   return {

@@ -1,11 +1,14 @@
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router';
 
 import { useSetBreadcrumbDetailLabel } from '../../../components/layout/BreadcrumbContext';
 import { BookInformationCard } from '../components/BookInformationCard';
+import { LoanHistoryTable } from '../components/LoanHistoryTable';
 import { StockBadge } from '../components/StockBadge';
 import { StockCard } from '../components/StockCard';
 import { TagBadge } from '../components/TagBadge';
 import { useBook } from '../hooks/useBook';
+import { useBookLoans } from '../hooks/useBookLoans';
 
 export function BookDetailPage() {
   const { bookId } = useParams<{ bookId: string }>();
@@ -13,7 +16,24 @@ export function BookDetailPage() {
   const isValidId = Boolean(bookId) && Number.isInteger(parsedId) && parsedId > 0;
 
   const { data: book, isLoading, isError, error, refetch } = useBook(parsedId);
+  const {
+    data: loans = [],
+    isLoading: isLoansLoading,
+    isError: isLoansError,
+    error: loansError,
+    refetch: refetchLoans,
+  } = useBookLoans(parsedId);
+
   useSetBreadcrumbDetailLabel(book?.title);
+
+  const overdueCount = useMemo(
+    () => loans.filter((loan) => loan.status === 'OVERDUE').length,
+    [loans],
+  );
+
+  function handleRetryLoans() {
+    void refetchLoans();
+  }
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -131,8 +151,18 @@ export function BookDetailPage() {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.15fr_1fr]">
             <BookInformationCard book={book} />
-            <StockCard book={book} />
+            <StockCard book={book} overdueCount={overdueCount} />
           </div>
+
+          <LoanHistoryTable
+            loans={loans}
+            isLoading={isLoansLoading}
+            isError={isLoansError}
+            errorMessage={
+              loansError instanceof Error ? loansError.message : 'Failed to load loan history'
+            }
+            onRetry={handleRetryLoans}
+          />
         </>
       )}
     </div>

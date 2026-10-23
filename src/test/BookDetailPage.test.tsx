@@ -32,7 +32,7 @@ function renderBookDetail(initialEntry = '/books/2') {
 }
 
 describe('BookDetailPage', () => {
-  it('fetches and displays book details, stock counts, tags, and actions for the requested ID', async () => {
+  it('fetches and displays book details, stock counts, and loan history from MSW for the requested ID', async () => {
     renderBookDetail('/books/2');
 
     expect(
@@ -61,8 +61,40 @@ describe('BookDetailPage', () => {
     expect(within(stockCard).getByText('Available')).toBeInTheDocument();
     expect(within(stockCard).getByText('2')).toBeInTheDocument();
 
+    const loanSection = screen.getByRole('region', { name: 'Loan history' });
+    expect(await within(loanSection).findByText('Minh Tran')).toBeInTheDocument();
+    expect(within(loanSection).getByText('Lan Pham')).toBeInTheDocument();
+    expect(within(loanSection).getByText('Huy Nguyen')).toBeInTheDocument();
+    expect(within(loanSection).getByText('Thao Le')).toBeInTheDocument();
+    expect(within(loanSection).getByText('Khoa Vo')).toBeInTheDocument();
+    expect(within(loanSection).getAllByText('Active')).toHaveLength(2);
+    expect(within(loanSection).getByText('Overdue')).toBeInTheDocument();
+    expect(within(loanSection).getAllByText('Returned', { selector: 'span' })).toHaveLength(2);
+
+    expect(
+      within(stockCard).getByText(
+        '1 loan is overdue. Members are reminded 24 hours before the due date.',
+      ),
+    ).toBeInTheDocument();
+
     expect(screen.getByRole('link', { name: /edit/i })).toHaveAttribute('href', '/books/2/edit');
     expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
+  });
+
+  it('displays empty loan history state when a book has no loans', async () => {
+    renderBookDetail('/books/3');
+
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'Designing Data-Intensive Applications',
+      }),
+    ).toBeInTheDocument();
+
+    const loanSection = screen.getByRole('region', { name: 'Loan history' });
+    expect(
+      await within(loanSection).findByText('No loan history for this book.'),
+    ).toBeInTheDocument();
   });
 
   it('displays em-dash (—) fallback when optional book fields are null or empty', async () => {
@@ -88,6 +120,9 @@ describe('BookDetailPage', () => {
     server.use(
       http.get('*/api/v1/books/42', () => {
         return HttpResponse.json(sparseBook);
+      }),
+      http.get('*/api/v1/books/42/loans', () => {
+        return HttpResponse.json({ data: [] });
       }),
     );
 
