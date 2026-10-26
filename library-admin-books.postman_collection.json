@@ -1,0 +1,290 @@
+{
+	"info": {
+		"_postman_id": "8a87d7fb-b1bf-4e46-a0a2-fd78a445782b",
+		"name": "Library Admin - Books API Collection",
+		"description": "Postman Collection for Library Admin - Books Management module matching docs/api-contract.md.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "bookId",
+			"value": "2",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Books",
+			"item": [
+				{
+					"name": "1. Get All Books (List with Search & Filters)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books?q=clean&tag=Programming&status=AVAILABLE&page=1&limit=10",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "clean",
+									"description": "Search term across title, author, isbn"
+								},
+								{
+									"key": "tag",
+									"value": "Programming",
+									"description": "Filter by book tag"
+								},
+								{
+									"key": "status",
+									"value": "AVAILABLE",
+									"description": "AVAILABLE | OUT_OF_STOCK | ARCHIVED"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Page number (min: 1)"
+								},
+								{
+									"key": "limit",
+									"value": "10",
+									"description": "Items per page (max: 100)"
+								}
+							]
+						},
+						"description": "Fetches paginated list of books with optional filters."
+					},
+					"response": []
+				},
+				{
+					"name": "2. Get Book Detail by ID",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Fetches full book details including computed available copies and onLoan count."
+					},
+					"response": []
+				},
+				{
+					"name": "3. Get Book Loans (History)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/{{bookId}}/loans",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{bookId}}",
+								"loans"
+							]
+						},
+						"description": "Fetches loan records for a book (member info, borrow date, due date, status)."
+					},
+					"response": []
+				},
+				{
+					"name": "4. Create New Book",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Refactoring UI\",\n  \"author\": \"Adam Wathan, Steve Schoger\",\n  \"isbn\": \"978-0-99-999999-1\",\n  \"publishedYear\": 2018,\n  \"totalCopies\": 4,\n  \"tags\": [\"Design\", \"CSS\"],\n  \"status\": \"AVAILABLE\",\n  \"description\": \"Design with developer mindset.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							]
+						},
+						"description": "Creates a new book record. Returns 201 Created."
+					},
+					"response": []
+				},
+				{
+					"name": "5. Update Book (PATCH)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"The Pragmatic Programmer (20th Anniversary Edition)\",\n  \"totalCopies\": 6\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books/{{bookId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"{{bookId}}"
+							]
+						},
+						"description": "Partially updates an existing book. totalCopies cannot be less than onLoan."
+					},
+					"response": []
+				},
+				{
+					"name": "6. Delete Book",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/6",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"6"
+							]
+						},
+						"description": "Deletes a book if it has zero active loans (returns 204 No Content). Returns 409 if onLoan > 0."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error Cases (Testing)",
+			"item": [
+				{
+					"name": "400 - Validation Error (Empty Title)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"\",\n  \"author\": \"Someone\",\n  \"isbn\": \"978-0-12-345678-9\",\n  \"publishedYear\": 2024,\n  \"totalCopies\": 0\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/books",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "404 - Book Not Found",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"999999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "409 - Active Loans Conflict (Cannot Delete)",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/books/2",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"books",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
