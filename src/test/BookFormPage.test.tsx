@@ -61,6 +61,8 @@ describe('BookFormPage', { timeout: FORM_PAGE_TEST_TIMEOUT_MS }, () => {
     );
 
     await user.click(screen.getByRole('button', { name: 'Save book' }));
+    const confirmCreateBtn1 = await screen.findByRole('button', { name: 'Create book' });
+    await user.click(confirmCreateBtn1);
 
     expect(
       await screen.findByRole('heading', {
@@ -95,6 +97,8 @@ describe('BookFormPage', { timeout: FORM_PAGE_TEST_TIMEOUT_MS }, () => {
     await user.type(screen.getByLabelText(/year/i), '2020');
 
     await user.click(screen.getByRole('button', { name: 'Save book' }));
+    const confirmCreateBtn2 = await screen.findByRole('button', { name: 'Create book' });
+    await user.click(confirmCreateBtn2);
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Book with this ISBN already exists',
@@ -128,6 +132,8 @@ describe('BookFormPage', { timeout: FORM_PAGE_TEST_TIMEOUT_MS }, () => {
     await user.type(screen.getByLabelText(/year/i), '2008');
 
     await user.click(screen.getByRole('button', { name: 'Save book' }));
+    const confirmCreateBtn3 = await screen.findByRole('button', { name: 'Create book' });
+    await user.click(confirmCreateBtn3);
 
     expect(
       await screen.findByText('A book with this title already exists in the catalogue'),

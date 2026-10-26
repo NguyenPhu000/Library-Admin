@@ -5,6 +5,7 @@ import { useSetBreadcrumbDetailLabel } from '../../../components/layout/Breadcru
 import { ErrorState } from '../../../shared/components/ErrorState';
 import { LoadingState } from '../../../shared/components/LoadingState';
 import { BookForm } from '../components/BookForm';
+import { CreateBookDialog } from '../components/CreateBookDialog';
 import { EditBookDialog } from '../components/EditBookDialog';
 import { useBook } from '../hooks/useBook';
 import { useBookLoans } from '../hooks/useBookLoans';
@@ -118,33 +119,39 @@ export function BookFormPage({ mode }: BookFormPageProps) {
   const [pendingValues, setPendingValues] = useState<BookFormValues | null>(null);
 
   function handleSubmit(values: BookFormValues) {
-    const availableCopies = values.totalCopies - (isEditMode ? resolvedOnLoan : 0);
+    if (isEditMode && !isValidId) {
+      return;
+    }
+    setPendingValues(values);
+    setIsConfirmOpen(true);
+  }
+
+  function handleConfirmCreate() {
+    if (!pendingValues) {
+      return;
+    }
+    const availableCopies = pendingValues.totalCopies;
     const nextStatus =
       availableCopies > 0 ? BOOK_STATUS.AVAILABLE : BOOK_STATUS.OUT_OF_STOCK;
 
-    if (isEditMode) {
-      if (!isValidId) {
-        return;
-      }
-      setPendingValues(values);
-      setIsConfirmOpen(true);
-      return;
-    }
-
     const payload: CreateBookPayload = {
-      title: values.title,
-      author: values.author,
+      title: pendingValues.title,
+      author: pendingValues.author,
       isbn: generateDefaultIsbn(),
-      publishedYear: values.publishedYear,
-      totalCopies: values.totalCopies,
-      tags: values.tags,
-      description: values.description ? values.description : null,
+      publishedYear: pendingValues.publishedYear,
+      totalCopies: pendingValues.totalCopies,
+      tags: pendingValues.tags,
+      description: pendingValues.description ? pendingValues.description : null,
       status: nextStatus,
     };
 
     createBookMutation.mutate(payload, {
       onSuccess: (createdBook) => {
+        setIsConfirmOpen(false);
         void navigate(`/books/${createdBook.id}`);
+      },
+      onError: () => {
+        setIsConfirmOpen(false);
       },
     });
   }
@@ -173,6 +180,9 @@ export function BookFormPage({ mode }: BookFormPageProps) {
         onSuccess: () => {
           setIsConfirmOpen(false);
           void navigate(`/books/${parsedId}`);
+        },
+        onError: () => {
+          setIsConfirmOpen(false);
         },
       },
     );
@@ -230,6 +240,21 @@ export function BookFormPage({ mode }: BookFormPageProps) {
           submitError={submitError}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+        />
+      )}
+
+      {!isEditMode && (
+        <CreateBookDialog
+          isOpen={isConfirmOpen}
+          bookTitle={pendingValues?.title || ''}
+          totalCopies={pendingValues?.totalCopies}
+          isCreating={createBookMutation.isPending}
+          onConfirm={handleConfirmCreate}
+          onCancel={() => {
+            if (!createBookMutation.isPending) {
+              setIsConfirmOpen(false);
+            }
+          }}
         />
       )}
 
