@@ -34,3 +34,6 @@ coverage
 # Documentation
 docs/
 
+.agents
+
+skills-lock.json

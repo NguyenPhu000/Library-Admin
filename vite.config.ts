@@ -28,6 +28,28 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('react-dom') || id.includes('react/') || id.includes('scheduler')) {
+                return 'vendor-react';
+              }
+              if (id.includes('react-router')) {
+                return 'vendor-router';
+              }
+              if (id.includes('@tanstack/react-query')) {
+                return 'vendor-query';
+              }
+              if (id.includes('react-hook-form') || id.includes('@hookform') || id.includes('zod')) {
+                return 'vendor-form';
+              }
+            }
+          },
+        },
+      },
+    },
     test: {
       environment: 'jsdom',
       globals: true,
@@ -37,3 +59,4 @@ export default defineConfig(({ mode }) => {
     },
   };
 });
+
