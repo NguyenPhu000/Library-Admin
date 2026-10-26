@@ -162,7 +162,7 @@ export function BookDetailPage() {
               <Link
                 to={`/books/${resolvedBook.id}/edit`}
                 state={{ from: `/books/${resolvedBook.id}` }}
-                className="inline-flex min-h-[44px] items-center gap-2 rounded-control border border-surface-tint-border bg-surface-tint px-4 font-semibold text-brand-600 no-underline transition-colors hover:bg-surface-row-alt hover:text-night-700"
+                className="inline-flex min-h-11 items-center gap-2 rounded-control border border-surface-tint-border bg-surface-tint px-4 font-semibold text-brand-600 no-underline transition-colors hover:bg-surface-row-alt hover:text-night-700"
               >
                 <svg
                   width="16"
@@ -179,7 +179,7 @@ export function BookDetailPage() {
               <button
                 type="button"
                 onClick={handleOpenDeleteDialog}
-                className="inline-flex min-h-[44px] cursor-pointer items-center gap-2 rounded-control border border-warn-border bg-warn-surface px-4 font-semibold text-warn-ink transition-colors hover:opacity-90"
+                className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-control border border-warn-border bg-warn-surface px-4 font-semibold text-warn-ink transition-colors hover:opacity-90"
               >
                 <svg
                   width="16"
