@@ -53,7 +53,7 @@ export function AdminLayout() {
 
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 z-30 bg-[#150829]/55 min-[901px]:hidden"
+            className="fixed inset-0 z-30 bg-night-900/55 min-[901px]:hidden"
             aria-hidden="true"
             onClick={handleCloseSidebar}
           />

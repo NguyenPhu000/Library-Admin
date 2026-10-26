@@ -1,5 +1,7 @@
 import { useEffect, useId, type ReactNode } from 'react';
 
+export type ConfirmDialogVariant = 'danger' | 'edit';
+
 interface ConfirmDialogProps {
   isOpen: boolean;
   title: string;
@@ -8,8 +10,10 @@ interface ConfirmDialogProps {
   confirmLabel?: string;
   confirmAriaLabel?: string;
   cancelLabel?: string;
+  pendingLabel?: string;
   isPending?: boolean;
   isConfirmDisabled?: boolean;
+  variant?: ConfirmDialogVariant;
   children?: ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
@@ -23,8 +27,10 @@ export function ConfirmDialog({
   confirmLabel = 'Confirm',
   confirmAriaLabel,
   cancelLabel = 'Cancel',
+  pendingLabel,
   isPending = false,
   isConfirmDisabled = false,
+  variant = 'danger',
   children,
   onConfirm,
   onCancel,
@@ -54,6 +60,15 @@ export function ConfirmDialog({
   }
 
   const effectiveConfirmDisabled = isPending || isConfirmDisabled;
+  const isEditVariant = variant === 'edit';
+  const resolvedPendingLabel =
+    pendingLabel ?? (isEditVariant ? 'Saving...' : 'Deleting...');
+
+  const confirmButtonClasses = effectiveConfirmDisabled
+    ? 'inline-flex min-h-11 cursor-not-allowed items-center justify-center rounded-control bg-[#E2E8F0] px-4 text-sm font-semibold text-ink-subtle transition-colors'
+    : isEditVariant
+      ? 'inline-flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-surface-tint-border bg-surface-tint px-4 text-sm font-semibold text-brand-600 transition-colors hover:bg-surface-row-alt hover:text-night-700 disabled:cursor-not-allowed disabled:opacity-60'
+      : 'inline-flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-warn-border bg-warn-surface px-4 text-sm font-semibold text-warn-ink transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60';
 
   return (
     <div
@@ -89,22 +104,18 @@ export function ConfirmDialog({
             type="button"
             disabled={isPending}
             onClick={onCancel}
-            className="inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:bg-surface-row-alt disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:bg-surface-row-alt disabled:cursor-not-allowed disabled:opacity-60"
           >
             {cancelLabel}
           </button>
           <button
             type="button"
-            aria-label={confirmAriaLabel ?? confirmLabel}
+            aria-label={isPending ? resolvedPendingLabel : (confirmAriaLabel ?? confirmLabel)}
             disabled={effectiveConfirmDisabled}
             onClick={onConfirm}
-            className={
-              isConfirmDisabled
-                ? 'inline-flex min-h-[40px] cursor-not-allowed items-center justify-center rounded-control bg-[#E2E8F0] px-4 text-sm font-semibold text-ink-subtle transition-colors'
-                : 'inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-warn-border bg-warn-surface px-4 text-sm font-semibold text-warn-ink transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60'
-            }
+            className={confirmButtonClasses}
           >
-            {isPending ? 'Deleting...' : confirmLabel}
+            {isPending ? resolvedPendingLabel : confirmLabel}
           </button>
         </div>
       </div>

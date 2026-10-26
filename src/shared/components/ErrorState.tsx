@@ -87,7 +87,7 @@ export function ErrorState({
         <button
           type="button"
           onClick={onRetry}
-          className="mt-1 inline-flex min-h-[44px] cursor-pointer items-center justify-center rounded-control border border-brand-600 bg-brand-600 px-5 text-sm font-semibold text-on-dark transition-colors hover:bg-night-700"
+          className="mt-1 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-brand-600 bg-brand-600 px-5 text-sm font-semibold text-on-dark transition-colors hover:bg-night-700"
         >
           {retryLabel}
         </button>

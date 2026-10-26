@@ -62,7 +62,7 @@ export function EmptyState({
       {actionLabel && actionTo && (
         <Link
           to={actionTo}
-          className="mt-1 inline-flex min-h-[40px] items-center justify-center rounded-control border border-surface-tint-border bg-surface-tint px-4 text-sm font-semibold text-brand-600 no-underline transition-colors hover:bg-surface-row-alt hover:text-night-700"
+          className="mt-1 inline-flex min-h-11 items-center justify-center rounded-control border border-surface-tint-border bg-surface-tint px-4 text-sm font-semibold text-brand-600 no-underline transition-colors hover:bg-surface-row-alt hover:text-night-700"
         >
           {actionLabel}
         </Link>
@@ -72,7 +72,7 @@ export function EmptyState({
         <button
           type="button"
           onClick={onAction}
-          className="mt-1 inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-surface-tint-border bg-surface-tint px-4 text-sm font-semibold text-brand-600 transition-colors hover:bg-surface-row-alt hover:text-night-700"
+          className="mt-1 inline-flex min-h-11 cursor-pointer items-center justify-center rounded-control border border-surface-tint-border bg-surface-tint px-4 text-sm font-semibold text-brand-600 transition-colors hover:bg-surface-row-alt hover:text-night-700"
         >
           {actionLabel}
         </button>
