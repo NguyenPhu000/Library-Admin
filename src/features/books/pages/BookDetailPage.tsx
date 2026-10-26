@@ -14,6 +14,7 @@ import { useBook } from '../hooks/useBook';
 import { useBookLoans } from '../hooks/useBookLoans';
 import { useDeleteBook } from '../hooks/useDeleteBook';
 import { LOAN_STATUS, type BookDetail } from '../types/book';
+import { calculateAvailableCopies } from '../utils/bookStock';
 
 export function BookDetailPage() {
   const navigate = useNavigate();
@@ -51,7 +52,7 @@ export function BookDetailPage() {
     const available =
       typeof book.available === 'number'
         ? book.available
-        : Math.max(0, book.totalCopies - onLoan);
+        : calculateAvailableCopies(book.totalCopies, onLoan);
 
     return {
       ...book,
