@@ -155,16 +155,23 @@ describe('BooksPage', () => {
     expect(statusSelect).toHaveValue('');
   });
 
-  it('renders pagination component showing item range and page controls', async () => {
+  it('renders pagination component showing item range and 3 page controls', async () => {
+    const user = userEvent.setup();
     renderWithProviders(<BooksPage />);
 
     expect(await screen.findByRole('table')).toBeInTheDocument();
 
-    expect(screen.getByText('Showing 1–8 of 8 books')).toBeInTheDocument();
+    expect(screen.getByText('Showing 1–10 of 26 books')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: 'Pagination' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next page' })).not.toBeDisabled();
     expect(screen.getByRole('button', { name: 'Page 1' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Page 2' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Page 3' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Page 3' }));
+    expect(await screen.findByText('Showing 21–26 of 26 books')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled();
   });
 
   it('resets page to 1 when search or filters change', async () => {
@@ -172,7 +179,7 @@ describe('BooksPage', () => {
     renderWithProviders(<BooksPage />);
 
     expect(await screen.findByRole('table')).toBeInTheDocument();
-    expect(screen.getByText('Showing 1–8 of 8 books')).toBeInTheDocument();
+    expect(screen.getByText('Showing 1–10 of 26 books')).toBeInTheDocument();
 
     const searchInput = screen.getByRole('searchbox', { name: /search/i });
     await user.type(searchInput, 'Clean Code');
