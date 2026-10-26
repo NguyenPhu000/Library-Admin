@@ -1,11 +1,18 @@
 import { Link } from 'react-router';
 
+import { EmptyState } from '../../../shared/components/EmptyState';
+import { ErrorState } from '../../../shared/components/ErrorState';
+import {
+  COMPACT_SKELETON_ROWS,
+  LoadingState,
+} from '../../../shared/components/LoadingState';
 import { LOAN_STATUS, type Loan, type LoanStatus } from '../types/book';
 
 interface LoanHistoryTableProps {
   loans: Loan[];
   isLoading?: boolean;
   isError?: boolean;
+  error?: unknown;
   errorMessage?: string;
   onRetry?: () => void;
 }
@@ -31,6 +38,7 @@ export function LoanHistoryTable({
   loans,
   isLoading = false,
   isError = false,
+  error,
   errorMessage,
   onRetry,
 }: LoanHistoryTableProps) {
@@ -52,37 +60,30 @@ export function LoanHistoryTable({
       </div>
 
       {isLoading && (
-        <div
-          role="status"
-          aria-busy="true"
-          className="border-t border-border px-6 py-10 text-center text-sm text-ink-muted"
-        >
-          <p className="m-0">Loading loan history...</p>
-        </div>
+        <LoadingState
+          label="Loading loan history..."
+          variant="rows"
+          rows={COMPACT_SKELETON_ROWS}
+        />
       )}
 
       {!isLoading && isError && (
-        <div
-          role="alert"
-          className="flex flex-col items-center justify-center gap-3 border-t border-border px-6 py-10 text-center text-sm text-ink"
-        >
-          <p className="m-0">{errorMessage || 'Failed to load loan history'}</p>
-          {onRetry && (
-            <button
-              type="button"
-              onClick={onRetry}
-              className="inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 font-semibold text-ink transition-colors hover:bg-surface-row-alt"
-            >
-              Retry
-            </button>
-          )}
-        </div>
+        <ErrorState
+          title="Couldn't load loan history"
+          error={error}
+          message={errorMessage || 'Failed to load loan history'}
+          retryLabel="Retry"
+          onRetry={onRetry}
+          className="rounded-none border-x-0 border-b-0"
+        />
       )}
 
       {!isLoading && !isError && loans.length === 0 && (
-        <div className="border-t border-border px-6 py-10 text-center text-sm text-ink-muted">
-          <p className="m-0">No loan history for this book.</p>
-        </div>
+        <EmptyState
+          variant="inline"
+          title="No loan history for this book."
+          description="When a member borrows this book, the loan record will appear here."
+        />
       )}
 
       {!isLoading && !isError && loans.length > 0 && (

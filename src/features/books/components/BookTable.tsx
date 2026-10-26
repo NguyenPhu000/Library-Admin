@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 
 import { StockBadge } from './StockBadge';
 import { TagBadge } from './TagBadge';
@@ -19,6 +19,8 @@ const BOOK_TABLE_COLUMNS = [
 ] as const;
 
 export function BookTable({ books }: BookTableProps) {
+  const location = useLocation();
+
   return (
     <div className="overflow-hidden rounded-card border border-border bg-surface shadow-xs">
       <div className="w-full overflow-x-auto">
@@ -74,6 +76,7 @@ export function BookTable({ books }: BookTableProps) {
                   </Link>
                   <Link
                     to={`/books/${book.id}/edit`}
+                    state={{ from: `${location.pathname}${location.search}` }}
                     className="ml-4 inline-block font-semibold text-brand-600 no-underline hover:text-night-700 hover:underline"
                   >
                     Edit

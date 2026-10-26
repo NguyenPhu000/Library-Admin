@@ -6,6 +6,9 @@ import { PageHeader } from '../components/PageHeader';
 import { BookFilters } from '../components/BookFilters';
 import { BookTable } from '../components/BookTable';
 import { Pagination } from '../components/Pagination';
+import { EmptyState } from '../../../shared/components/EmptyState';
+import { ErrorState } from '../../../shared/components/ErrorState';
+import { LoadingState } from '../../../shared/components/LoadingState';
 import { useDebounce } from '../../../shared/hooks/useDebounce';
 import {
   DEFAULT_PAGE_SIZE,
@@ -55,6 +58,10 @@ export function BooksPage() {
     setPage(1);
   }
 
+  function handleRetryBooks() {
+    void refetch();
+  }
+
   const hasActiveFilters = Boolean(searchQuery || selectedTag || selectedStatus);
 
   return (
@@ -77,45 +84,30 @@ export function BooksPage() {
         availableTags={availableTags}
       />
 
-      {isLoading && (
-        <div
-          role="status"
-          aria-busy="true"
-          className="flex flex-col items-center justify-center gap-3 rounded-card bg-surface p-11 text-center text-ink-muted"
-        >
-          <p>Loading books...</p>
-        </div>
-      )}
+      {isLoading && <LoadingState label="Loading books..." variant="table" />}
 
       {isError && (
-        <div
-          role="alert"
-          className="flex flex-col items-center justify-center gap-3 rounded-card border border-border bg-surface p-11 text-center text-ink"
-        >
-          <p>{error instanceof Error ? error.message : 'Failed to load books'}</p>
-          <button
-            type="button"
-            onClick={() => void refetch()}
-            className="inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 font-semibold text-ink transition-colors hover:bg-surface-row-alt"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          title="Couldn't load books"
+          error={error}
+          onRetry={handleRetryBooks}
+        />
       )}
 
       {!isLoading && !isError && data && data.data.length === 0 && (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-card border border-dashed border-border-dashed bg-surface p-11 text-center text-ink-muted">
-          <p>No books found.</p>
-          {hasActiveFilters && (
-            <button
-              type="button"
-              onClick={handleClearFilters}
-              className="inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 font-semibold text-ink transition-colors hover:bg-surface-row-alt"
-            >
-              Clear filters
-            </button>
-          )}
-        </div>
+        <EmptyState
+          title={
+            hasActiveFilters ? 'No books match your filters' : 'No books in the catalogue yet'
+          }
+          description={
+            hasActiveFilters
+              ? 'Try another title or author, or clear the filters to see every book.'
+              : 'Add the first book to start building your library catalogue.'
+          }
+          actionLabel={hasActiveFilters ? 'Clear filters' : 'Add book'}
+          actionTo={hasActiveFilters ? undefined : '/books/new'}
+          onAction={hasActiveFilters ? handleClearFilters : undefined}
+        />
       )}
 
       {!isLoading && !isError && data && data.data.length > 0 && (

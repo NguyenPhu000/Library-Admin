@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 
 import { useSetBreadcrumbDetailLabel } from '../../../components/layout/BreadcrumbContext';
+import { ErrorState } from '../../../shared/components/ErrorState';
+import { LoadingState } from '../../../shared/components/LoadingState';
 import { BookInformationCard } from '../components/BookInformationCard';
 import { DeleteBookDialog } from '../components/DeleteBookDialog';
 import { LoanHistoryTable } from '../components/LoanHistoryTable';
@@ -58,6 +60,10 @@ export function BookDetailPage() {
     };
   }, [book, loans]);
 
+  function handleRetryBook() {
+    void refetch();
+  }
+
   function handleRetryLoans() {
     void refetchLoans();
   }
@@ -76,7 +82,7 @@ export function BookDetailPage() {
   }
 
   function handleConfirmDelete() {
-    if (!resolvedBook) {
+    if (!resolvedBook || resolvedBook.onLoan > 0) {
       return;
     }
     deleteBookMutation.mutate(resolvedBook.id, {
@@ -117,31 +123,17 @@ export function BookDetailPage() {
       )}
 
       {isValidId && isLoading && (
-        <div
-          role="status"
-          aria-busy="true"
-          className="flex flex-col items-center justify-center gap-3 rounded-card border border-border bg-surface p-11 text-center text-ink-muted"
-        >
-          <p className="m-0">Loading book details...</p>
-        </div>
+        <LoadingState label="Loading book details..." variant="detail" />
       )}
 
       {isValidId && isError && (
-        <div
-          role="alert"
-          className="flex flex-col items-center justify-center gap-3 rounded-card border border-border bg-surface p-11 text-center text-ink"
-        >
-          <p className="m-0">
-            {error instanceof Error ? error.message : 'Failed to load book details'}
-          </p>
-          <button
-            type="button"
-            onClick={() => void refetch()}
-            className="inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 font-semibold text-ink transition-colors hover:bg-surface-row-alt"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          title="Couldn't load book details"
+          error={error}
+          message={error instanceof Error ? error.message : 'Failed to load book details'}
+          retryLabel="Retry"
+          onRetry={handleRetryBook}
+        />
       )}
 
       {isValidId && !isLoading && !isError && resolvedBook && (
@@ -168,6 +160,7 @@ export function BookDetailPage() {
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 to={`/books/${resolvedBook.id}/edit`}
+                state={{ from: `/books/${resolvedBook.id}` }}
                 className="inline-flex min-h-[44px] items-center gap-2 rounded-control border border-surface-tint-border bg-surface-tint px-4 font-semibold text-brand-600 no-underline transition-colors hover:bg-surface-row-alt hover:text-night-700"
               >
                 <svg
@@ -211,6 +204,7 @@ export function BookDetailPage() {
             loans={loans}
             isLoading={isLoansLoading}
             isError={isLoansError}
+            error={loansError}
             errorMessage={
               loansError instanceof Error ? loansError.message : 'Failed to load loan history'
             }
@@ -220,6 +214,7 @@ export function BookDetailPage() {
           <DeleteBookDialog
             isOpen={isDeleteDialogOpen}
             bookTitle={resolvedBook.title}
+            activeLoansCount={resolvedBook.onLoan}
             isDeleting={deleteBookMutation.isPending}
             error={deleteBookMutation.error}
             onConfirm={handleConfirmDelete}

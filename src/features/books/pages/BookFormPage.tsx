@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { useSetBreadcrumbDetailLabel } from '../../../components/layout/BreadcrumbContext';
+import { ErrorState } from '../../../shared/components/ErrorState';
+import { LoadingState } from '../../../shared/components/LoadingState';
 import { BookForm } from '../components/BookForm';
 import { useBook } from '../hooks/useBook';
 import { useBookLoans } from '../hooks/useBookLoans';
@@ -32,6 +34,7 @@ function generateDefaultIsbn(): string {
 }
 
 export function BookFormPage({ mode }: BookFormPageProps) {
+  const location = useLocation();
   const navigate = useNavigate();
   const { bookId } = useParams<{ bookId: string }>();
 
@@ -87,6 +90,22 @@ export function BookFormPage({ mode }: BookFormPageProps) {
   }
 
   function handleCancel() {
+    const fromPath = (location.state as { from?: string } | null)?.from;
+    if (fromPath) {
+      void navigate(fromPath);
+      return;
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      window.history.state &&
+      typeof window.history.state.idx === 'number' &&
+      window.history.state.idx > 0
+    ) {
+      navigate(-1);
+      return;
+    }
+
     if (isEditMode && isValidId) {
       void navigate(`/books/${parsedId}`);
       return;
@@ -171,31 +190,18 @@ export function BookFormPage({ mode }: BookFormPageProps) {
       )}
 
       {isEditMode && isValidId && isBookLoading && (
-        <div
-          role="status"
-          aria-busy="true"
-          className="flex max-w-[780px] flex-col items-center justify-center gap-3 rounded-card border border-border bg-surface p-11 text-center text-ink-muted"
-        >
-          <p className="m-0">Loading book details...</p>
-        </div>
+        <LoadingState label="Loading book details..." variant="form" />
       )}
 
       {isEditMode && isValidId && isBookError && (
-        <div
-          role="alert"
-          className="flex max-w-[780px] flex-col items-center justify-center gap-3 rounded-card border border-border bg-surface p-11 text-center text-ink"
-        >
-          <p className="m-0">
-            {bookError instanceof Error ? bookError.message : 'Failed to load book details'}
-          </p>
-          <button
-            type="button"
-            onClick={handleRetryBook}
-            className="inline-flex min-h-[40px] cursor-pointer items-center justify-center rounded-control border border-border bg-surface px-4 font-semibold text-ink transition-colors hover:bg-surface-row-alt"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          title="Couldn't load book details"
+          error={bookError}
+          message={bookError instanceof Error ? bookError.message : 'Failed to load book details'}
+          retryLabel="Retry"
+          onRetry={handleRetryBook}
+          className="max-w-[780px]"
+        />
       )}
 
       {(!isEditMode || (isValidId && !isBookLoading && !isBookError && book)) && (
