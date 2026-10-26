@@ -4,7 +4,7 @@ import { afterAll, afterEach, beforeAll } from 'vitest';
 import { resetSeedData } from './mocks/data';
 import { server } from './mocks/server';
 
-beforeAll(() => server.listen());
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 afterEach(() => {
   server.resetHandlers();
   resetSeedData();
