@@ -187,7 +187,7 @@ describe('BookDetailPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('blocks deletion when book has active loans (409 BOOK_HAS_ACTIVE_LOANS) and shows conflict message', async () => {
+  it('blocks deletion when book has active loans and shows warning callout', async () => {
     const user = userEvent.setup();
     renderBookDetail('/books/2');
 
@@ -198,10 +198,12 @@ describe('BookDetailPage', () => {
     await user.click(screen.getByRole('button', { name: 'Delete' }));
 
     const dialog = screen.getByRole('dialog', { name: 'Delete book' });
-    await user.click(within(dialog).getByRole('button', { name: 'Delete book' }));
-
     const alert = await within(dialog).findByRole('alert');
-    expect(alert).toHaveTextContent('Cannot delete book while 3 copies are currently on loan');
+    expect(alert).toHaveTextContent('3 copies are on loan. Return them before deleting.');
+
+    const deleteButton = within(dialog).getByRole('button', { name: 'Delete book' });
+    expect(deleteButton).toBeDisabled();
+
     expect(
       screen.getByRole('heading', { level: 1, name: 'The Pragmatic Programmer' }),
     ).toBeInTheDocument();

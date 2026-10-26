@@ -71,6 +71,27 @@ describe('DeleteBookDialog', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Delete book' });
     const alert = within(dialog).getByRole('alert');
-    expect(alert).toHaveTextContent('Cannot delete book while 3 copies are currently on loan');
+    expect(alert).toHaveTextContent('3 copies are on loan. Return them before deleting.');
+  });
+
+  it('shows warning callout and disables Delete button when activeLoansCount > 0', () => {
+    render(
+      <DeleteBookDialog
+        isOpen={true}
+        bookTitle="The Pragmatic Programmer"
+        activeLoansCount={3}
+        isDeleting={false}
+        error={null}
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+
+    const dialog = screen.getByRole('dialog', { name: 'Delete book' });
+    const alert = within(dialog).getByRole('alert');
+    expect(alert).toHaveTextContent('3 copies are on loan. Return them before deleting.');
+
+    const deleteButton = within(dialog).getByRole('button', { name: 'Delete book' });
+    expect(deleteButton).toBeDisabled();
   });
 });

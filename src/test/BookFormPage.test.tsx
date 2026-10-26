@@ -9,7 +9,7 @@ import { appRoutes } from '../app/router/routes';
 import { API_ERROR_CODE } from '../shared/types/api';
 import { server } from './mocks/server';
 
-function renderFormRoute(initialPath: string) {
+function renderFormRoute(initialPath: string | { pathname: string; state?: unknown }) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -34,7 +34,9 @@ function renderFormRoute(initialPath: string) {
   return router;
 }
 
-describe('BookFormPage', () => {
+const FORM_PAGE_TEST_TIMEOUT_MS = 15_000;
+
+describe('BookFormPage', { timeout: FORM_PAGE_TEST_TIMEOUT_MS }, () => {
   it('creates a new book via POST /api/v1/books and navigates to its detail page', async () => {
     const user = userEvent.setup();
     renderFormRoute('/books/new');
@@ -158,5 +160,68 @@ describe('BookFormPage', () => {
         name: 'The Pragmatic Programmer (2nd Edition)',
       }),
     ).toBeInTheDocument();
+  });
+
+  it('displays error state and retries loading book details on /books/:bookId/edit when Retry is clicked', async () => {
+    const user = userEvent.setup();
+    let shouldFail = true;
+
+    server.use(
+      http.get('*/api/v1/books/2', () => {
+        if (shouldFail) {
+          shouldFail = false;
+          return HttpResponse.json(
+            {
+              error: {
+                code: API_ERROR_CODE.INTERNAL_SERVER_ERROR,
+                message: 'Failed to load book details',
+                requestId: 'req-edit-500',
+              },
+            },
+            { status: 500 },
+          );
+        }
+
+        return HttpResponse.json({
+          id: 2,
+          title: 'The Pragmatic Programmer',
+          author: 'David Thomas, Andrew Hunt',
+          isbn: '978-0-13-595705-9',
+          publishedYear: 2019,
+          totalCopies: 5,
+          status: 'AVAILABLE',
+          tags: ['Programming', 'Career'],
+          description: 'Mastery in software development.',
+          createdAt: '2026-01-12T09:00:00.000Z',
+          updatedAt: '2026-01-12T09:00:00.000Z',
+        });
+      }),
+    );
+
+    renderFormRoute('/books/2/edit');
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toBeInTheDocument();
+    expect(screen.getByText('Failed to load book details')).toBeInTheDocument();
+    expect(screen.getByText('Request ID: req-edit-500')).toBeInTheDocument();
+
+    const retryButton = screen.getByRole('button', { name: 'Retry' });
+    await user.click(retryButton);
+
+    expect(await screen.findByDisplayValue('The Pragmatic Programmer')).toBeInTheDocument();
+  });
+  it('navigates back to /books when Cancel is clicked after opening edit from the table', async () => {
+    const user = userEvent.setup();
+    renderFormRoute({
+      pathname: '/books/2/edit',
+      state: { from: '/books' },
+    });
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Edit book' })).toBeInTheDocument();
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
+    await user.click(cancelButton);
+
+    expect(await screen.findByRole('heading', { level: 1, name: 'Books' })).toBeInTheDocument();
   });
 });

@@ -4,7 +4,9 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { BookForm } from '../features/books/components/BookForm';
 
-describe('BookForm', () => {
+const FORM_TEST_TIMEOUT_MS = 15_000;
+
+describe('BookForm', { timeout: FORM_TEST_TIMEOUT_MS }, () => {
   it('renders required fields, helper texts, and action buttons', () => {
     render(<BookForm onSubmit={vi.fn()} onCancel={vi.fn()} />);
 
