@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 
 import { useSetBreadcrumbDetailLabel } from '../../../components/layout/BreadcrumbContext';
 import { ErrorState } from '../../../shared/components/ErrorState';
 import { LoadingState } from '../../../shared/components/LoadingState';
 import { BookForm } from '../components/BookForm';
+import { EditBookDialog } from '../components/EditBookDialog';
 import { useBook } from '../hooks/useBook';
 import { useBookLoans } from '../hooks/useBookLoans';
 import { useCreateBook } from '../hooks/useCreateBook';
@@ -113,6 +114,9 @@ export function BookFormPage({ mode }: BookFormPageProps) {
     void navigate('/books');
   }
 
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingValues, setPendingValues] = useState<BookFormValues | null>(null);
+
   function handleSubmit(values: BookFormValues) {
     const availableCopies = values.totalCopies - (isEditMode ? resolvedOnLoan : 0);
     const nextStatus =
@@ -122,24 +126,8 @@ export function BookFormPage({ mode }: BookFormPageProps) {
       if (!isValidId) {
         return;
       }
-      const payload: UpdateBookPayload = {
-        title: values.title,
-        author: values.author,
-        publishedYear: values.publishedYear,
-        totalCopies: values.totalCopies,
-        tags: values.tags,
-        description: values.description ? values.description : null,
-        status: nextStatus,
-      };
-
-      updateBookMutation.mutate(
-        { id: parsedId, payload },
-        {
-          onSuccess: () => {
-            void navigate(`/books/${parsedId}`);
-          },
-        },
-      );
+      setPendingValues(values);
+      setIsConfirmOpen(true);
       return;
     }
 
@@ -159,6 +147,35 @@ export function BookFormPage({ mode }: BookFormPageProps) {
         void navigate(`/books/${createdBook.id}`);
       },
     });
+  }
+
+  function handleConfirmEdit() {
+    if (!pendingValues || !isValidId) {
+      return;
+    }
+    const availableCopies = pendingValues.totalCopies - resolvedOnLoan;
+    const nextStatus =
+      availableCopies > 0 ? BOOK_STATUS.AVAILABLE : BOOK_STATUS.OUT_OF_STOCK;
+
+    const payload: UpdateBookPayload = {
+      title: pendingValues.title,
+      author: pendingValues.author,
+      publishedYear: pendingValues.publishedYear,
+      totalCopies: pendingValues.totalCopies,
+      tags: pendingValues.tags,
+      description: pendingValues.description ? pendingValues.description : null,
+      status: nextStatus,
+    };
+
+    updateBookMutation.mutate(
+      { id: parsedId, payload },
+      {
+        onSuccess: () => {
+          setIsConfirmOpen(false);
+          void navigate(`/books/${parsedId}`);
+        },
+      },
+    );
   }
 
   const isSubmitting = isEditMode
@@ -213,6 +230,21 @@ export function BookFormPage({ mode }: BookFormPageProps) {
           submitError={submitError}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+        />
+      )}
+
+      {isEditMode && book && (
+        <EditBookDialog
+          isOpen={isConfirmOpen}
+          bookTitle={pendingValues?.title || book.title}
+          isSaving={updateBookMutation.isPending}
+          noticeMessage="Updating this book will immediately sync stock and details across the library catalogue."
+          onConfirm={handleConfirmEdit}
+          onCancel={() => {
+            if (!updateBookMutation.isPending) {
+              setIsConfirmOpen(false);
+            }
+          }}
         />
       )}
     </section>

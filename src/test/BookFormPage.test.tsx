@@ -154,6 +154,10 @@ describe('BookFormPage', { timeout: FORM_PAGE_TEST_TIMEOUT_MS }, () => {
 
     await user.click(screen.getByRole('button', { name: 'Save book' }));
 
+    const confirmButton = await screen.findByRole('button', { name: 'Save changes' });
+    expect(confirmButton).toBeInTheDocument();
+    await user.click(confirmButton);
+
     expect(
       await screen.findByRole('heading', {
         level: 1,
